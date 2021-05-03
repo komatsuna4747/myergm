@@ -50,6 +50,35 @@ arma::sp_mat change_one_link(const arma::sp_mat& adjmat) {
 
 
 // [[Rcpp::export]]
+arma::sp_mat change_one_link_modified(const arma::sp_mat& adjmat, double& numOfEdges, double& numOfTriangles, int i, int j) {
+  arma::sp_mat G = adjmat;
+
+  // Change the state of the selected dyad.
+  G(i, j) = 1 - G(i, j);
+  G(j, i) = 1 - G(j, i);
+
+  // If added a link, add one to numOfEdges. Otherwise, subtract one.
+  if (G(i, j) == 1) {
+    numOfEdges += 1;
+  } else {
+    numOfEdges += -1;
+  }
+
+  // Count the number of triangles that appear/disappear by adding/removing the link.
+  arma::sp_mat col_i = G.col(i);
+  arma::sp_mat col_j = G.col(j);
+  arma::sp_mat ij = col_i.t() * col_j;
+  if (G(i, j) == 1) {
+    numOfTriangles += ij(0, 0);
+  } else {
+    numOfTriangles += -ij(0, 0);
+  }
+
+  return G;
+}
+
+
+// [[Rcpp::export]]
 arma::sp_mat change_all_links_of_one_node(const arma::sp_mat& adjmat) {
   arma::sp_mat adjmat_next = adjmat;
   double numOfNodes = adjmat.n_rows;
@@ -120,9 +149,17 @@ void Metropolis_Hastings(arma::sp_mat& adjmat,
   // Draw a number from (0, 1).
   double x = unif_rand();
 
+  // Number of nodes
+  double numOfNodes = adjmat.n_rows;
+
   // Initialization
   double numOfEdges = count_edges_cpp(adjmat);
   double numOfTriangles = count_triangle_cpp(adjmat);
+  double numOfEdges_next = numOfEdges;
+  double numOfTriangles_next = numOfTriangles;
+  double changestat_edges = numOfEdges_next - numOfEdges;
+  double changestat_triangle = numOfTriangles_next - numOfTriangles;
+  double logratio = 0;
 
   // If x < p_large_step, then select one node and flip its all links.
   if (x < p_large_step) {
@@ -133,13 +170,13 @@ void Metropolis_Hastings(arma::sp_mat& adjmat,
     arma::sp_mat adjmat_next = change_all_links_of_one_node(adjmat);
 
     // Store the results.
-    double numOfEdges_next = count_edges_cpp(adjmat_next);
-    double numOfTriangles_next = count_triangle_cpp(adjmat_next);
-    double changestat_edges = numOfEdges_next - numOfEdges;
-    double changestat_triangle = numOfTriangles_next - numOfTriangles;
+    numOfEdges_next = count_edges_cpp(adjmat_next);
+    numOfTriangles_next = count_triangle_cpp(adjmat_next);
+    changestat_edges = numOfEdges_next - numOfEdges;
+    changestat_triangle = numOfTriangles_next - numOfTriangles;
 
     // Compute the logratio
-    double logratio = changestat_edges * coefEdges + changestat_triangle * coefTriangle;
+    logratio = changestat_edges * coefEdges + changestat_triangle * coefTriangle;
 
     // Accept or reject?
     if (logratio >= 0.0 || log(unif_rand()) < logratio) {
@@ -148,11 +185,12 @@ void Metropolis_Hastings(arma::sp_mat& adjmat,
       }
       n_accepted += 1;
       adjmat = adjmat_next;
+      numOfEdges = numOfEdges_next;
+      numOfTriangles = numOfTriangles_next;
     } else {
       if (verbose >= 5) {
         Rcpp::Rcout << "Rejected." << "\n";
       }
-      adjmat_next = adjmat;
     }
   }
 
@@ -165,13 +203,13 @@ void Metropolis_Hastings(arma::sp_mat& adjmat,
     arma::sp_mat adjmat_next = change_multiple_links(adjmat, lambda);
 
     // Store the results.
-    double numOfEdges_next = count_edges_cpp(adjmat_next);
-    double numOfTriangles_next = count_triangle_cpp(adjmat_next);
-    double changestat_edges = numOfEdges_next - numOfEdges;
-    double changestat_triangle = numOfTriangles_next - numOfTriangles;
+    numOfEdges_next = count_edges_cpp(adjmat_next);
+    numOfTriangles_next = count_triangle_cpp(adjmat_next);
+    changestat_edges = numOfEdges_next - numOfEdges;
+    changestat_triangle = numOfTriangles_next - numOfTriangles;
 
     // Compute the logratio
-    double logratio = changestat_edges * coefEdges + changestat_triangle * coefTriangle;
+    logratio = changestat_edges * coefEdges + changestat_triangle * coefTriangle;
 
     // Accept or reject?
     if (logratio >= 0.0 || log(unif_rand()) < logratio) {
@@ -180,6 +218,8 @@ void Metropolis_Hastings(arma::sp_mat& adjmat,
       }
       n_accepted += 1;
       adjmat = adjmat_next;
+      numOfEdges = numOfEdges_next;
+      numOfTriangles = numOfTriangles_next;
     } else {
       if (verbose >= 5) {
         Rcpp::Rcout << "Rejected." << "\n";
@@ -192,26 +232,35 @@ void Metropolis_Hastings(arma::sp_mat& adjmat,
     if (verbose >= 5) {
       Rcpp::Rcout << "Flipping one link..." << "\n";
     }
+    // Choose one dyad randomly and change the state.
+    // pick a random element
+    int i = unif_rand() * numOfNodes;
+    // pick a random element from what's left (there is one fewer to choose from)...
+    int j =  unif_rand() * (numOfNodes- 1);
+    // ...and adjust second choice to take into account the first choice
+    if (j >= i)
+    {
+      ++i;
+    }
     // Store the results.
-    arma::sp_mat adjmat_next = change_one_link(adjmat);
+    arma::sp_mat adjmat_next = change_one_link_modified(adjmat, numOfEdges_next, numOfTriangles_next, i, j);
 
     // Store the results.
-    double numOfEdges_next = count_edges_cpp(adjmat_next);
-    double numOfTriangles_next = count_triangle_cpp(adjmat_next);
-    double changestat_edges = numOfEdges_next - numOfEdges;
-    double changestat_triangle = numOfTriangles_next - numOfTriangles;
+    changestat_edges = numOfEdges_next - numOfEdges;
+    changestat_triangle = numOfTriangles_next - numOfTriangles;
 
     // Compute the logratio
-    double logratio = changestat_edges * coefEdges + changestat_triangle * coefTriangle;
+    logratio = changestat_edges * coefEdges + changestat_triangle * coefTriangle;
 
     // Accept or reject?
-    double random_number = unif_rand();
-    if (logratio >= 0.0 || log(random_number) < logratio) {
+    if (logratio >= 0.0 || log(unif_rand()) < logratio) {
       if (verbose >= 5) {
         Rcpp::Rcout << "Accepted." << "\n";
       }
       n_accepted += 1;
       adjmat = adjmat_next;
+      numOfEdges = numOfEdges_next;
+      numOfTriangles = numOfTriangles_next;
     } else {
       if (verbose >= 5) {
         Rcpp::Rcout << "Rejected." << "\n";

@@ -39,6 +39,21 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// change_one_link_modified
+arma::sp_mat change_one_link_modified(const arma::sp_mat& adjmat, double& numOfEdges, double& numOfTriangles, int i, int j);
+RcppExport SEXP _myergm_change_one_link_modified(SEXP adjmatSEXP, SEXP numOfEdgesSEXP, SEXP numOfTrianglesSEXP, SEXP iSEXP, SEXP jSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::sp_mat& >::type adjmat(adjmatSEXP);
+    Rcpp::traits::input_parameter< double& >::type numOfEdges(numOfEdgesSEXP);
+    Rcpp::traits::input_parameter< double& >::type numOfTriangles(numOfTrianglesSEXP);
+    Rcpp::traits::input_parameter< int >::type i(iSEXP);
+    Rcpp::traits::input_parameter< int >::type j(jSEXP);
+    rcpp_result_gen = Rcpp::wrap(change_one_link_modified(adjmat, numOfEdges, numOfTriangles, i, j));
+    return rcpp_result_gen;
+END_RCPP
+}
 // change_all_links_of_one_node
 arma::sp_mat change_all_links_of_one_node(const arma::sp_mat& adjmat);
 RcppExport SEXP _myergm_change_all_links_of_one_node(SEXP adjmatSEXP) {
@@ -102,6 +117,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_myergm_count_edges_cpp", (DL_FUNC) &_myergm_count_edges_cpp, 1},
     {"_myergm_count_triangle_cpp", (DL_FUNC) &_myergm_count_triangle_cpp, 1},
     {"_myergm_change_one_link", (DL_FUNC) &_myergm_change_one_link, 1},
+    {"_myergm_change_one_link_modified", (DL_FUNC) &_myergm_change_one_link_modified, 5},
     {"_myergm_change_all_links_of_one_node", (DL_FUNC) &_myergm_change_all_links_of_one_node, 1},
     {"_myergm_change_multiple_links", (DL_FUNC) &_myergm_change_multiple_links, 2},
     {"_myergm_Metropolis_Hastings", (DL_FUNC) &_myergm_Metropolis_Hastings, 7},
