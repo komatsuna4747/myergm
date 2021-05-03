@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+  rstudio:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: komatsuERGM
+    ports:
+      - 8787:8787
+    environment:
+      - PASSWORD=${PASSWORD}
+      - DISABLE_AUTH=true
+      - USERID=${USERID}
+      - GROUPID=${GROUPID}
+    volumes:
+      - ${PWD}:/home/rstudio
+    tty: true
+    stdin_open: true
