@@ -40,7 +40,7 @@ arma::sp_mat change_one_link(const arma::sp_mat& adjmat) {
   // ...and adjust second choice to take into account the first choice
   if (j >= i)
   {
-    ++i;
+    ++j;
   }
   adjmat_next(i, j) = 1 - adjmat_next(i, j);
   adjmat_next(j, i) = 1 - adjmat_next(j, i);
@@ -50,7 +50,7 @@ arma::sp_mat change_one_link(const arma::sp_mat& adjmat) {
 
 
 // [[Rcpp::export]]
-arma::sp_mat change_one_link_modified(const arma::sp_mat& adjmat, double& numOfEdges, double& numOfTriangles, int i, int j) {
+arma::sp_mat change_one_link_modified(const arma::sp_mat& adjmat, double& numOfEdges, double& numOfTriangles, int i, int j, int verbose) {
   arma::sp_mat G = adjmat;
 
   // Change the state of the selected dyad.
@@ -60,8 +60,14 @@ arma::sp_mat change_one_link_modified(const arma::sp_mat& adjmat, double& numOfE
   // If added a link, add one to numOfEdges. Otherwise, subtract one.
   if (G(i, j) == 1) {
     numOfEdges += 1;
+    if (verbose >= 5) {
+      Rcpp::Rcout << "Added link: (" << i << ", " << j << ")"<<"\n";
+    }
   } else {
     numOfEdges += -1;
+    if (verbose >= 5) {
+      Rcpp::Rcout << "Deleted link: (" << i << ", " << j << ")"<<"\n";
+    }
   }
 
   // Count the number of triangles that appear/disappear by adding/removing the link.
@@ -118,7 +124,7 @@ arma::sp_mat change_multiple_links(const arma::sp_mat& adjmat, double lambda) {
     // ...and adjust second choice to take into account the first choice
     if (j >= i)
     {
-      ++i;
+      ++j;
     }
     // Store i and j in Dyads.
     Dyads(l, 0) = i;
@@ -141,6 +147,9 @@ arma::sp_mat change_multiple_links(const arma::sp_mat& adjmat, double lambda) {
 // [[Rcpp::export]]
 void Metropolis_Hastings(arma::sp_mat& adjmat,
                          double& n_accepted,
+                         double& numOfEdges,
+                         double& numOfTriangles,
+                         double numOfNodes,
                          double coefEdges,
                          double coefTriangle,
                          double p_large_step,
@@ -149,12 +158,7 @@ void Metropolis_Hastings(arma::sp_mat& adjmat,
   // Draw a number from (0, 1).
   double x = unif_rand();
 
-  // Number of nodes
-  double numOfNodes = adjmat.n_rows;
-
   // Initialization
-  double numOfEdges = count_edges_cpp(adjmat);
-  double numOfTriangles = count_triangle_cpp(adjmat);
   double numOfEdges_next = numOfEdges;
   double numOfTriangles_next = numOfTriangles;
   double changestat_edges = numOfEdges_next - numOfEdges;
@@ -240,10 +244,10 @@ void Metropolis_Hastings(arma::sp_mat& adjmat,
     // ...and adjust second choice to take into account the first choice
     if (j >= i)
     {
-      ++i;
+      ++j;
     }
     // Store the results.
-    arma::sp_mat adjmat_next = change_one_link_modified(adjmat, numOfEdges_next, numOfTriangles_next, i, j);
+    arma::sp_mat adjmat_next = change_one_link_modified(adjmat, numOfEdges_next, numOfTriangles_next, i, j, verbose);
 
     // Store the results.
     changestat_edges = numOfEdges_next - numOfEdges;
@@ -252,7 +256,7 @@ void Metropolis_Hastings(arma::sp_mat& adjmat,
     // Compute the logratio
     logratio = changestat_edges * coefEdges + changestat_triangle * coefTriangle;
 
-    // Accept or reject?
+        // Accept or reject?
     if (logratio >= 0.0 || log(unif_rand()) < logratio) {
       if (verbose >= 5) {
         Rcpp::Rcout << "Accepted." << "\n";
@@ -277,35 +281,58 @@ arma::mat create_MCMC(const arma::sp_mat& adjmat,
                       double coefTriangle,
                       int MCMC_interval = 1024,
                       int MCMC_samplesize = 1024,
-                      double MCMC_burnin = 1024 * 16,
+                      int MCMC_burnin = 1024 * 16,
                       double p_large_step = 0.01,
                       double lambda = 0.5,
+                      bool full_sample = false,
                       int verbose = 0) {
   // Total number of iterations
   int total_iter = MCMC_burnin + MCMC_interval * MCMC_samplesize;
 
-  // Create a matrix in which network stats used for MC-MLE are stored.
-  // arma::mat stats_for_MCMLE = arma::zeros(MCMC.samplesize, 2);
+  int mat_size = MCMC_samplesize;
+  if (full_sample == true) {
+    mat_size = total_iter;
+  }
 
-  // Create a matrix in which all network stats during MCMC are stored.
-  arma::mat all_stats = arma::zeros(total_iter , 2);
+  // Create a matrix in which network stats during MCMC are stored.
+  arma::mat stats = arma::zeros(mat_size , 2);
 
   // Initialization
   arma::sp_mat G = adjmat;
   double n_accepted = 0;
+  double numOfEdges = count_edges_cpp(adjmat);
+  double numOfTriangles = count_triangle_cpp(adjmat);
+  double numOfNodes = adjmat.n_rows;
 
   // Start MCMC
-  for (int i = 0; i < total_iter; i++) {
-    Metropolis_Hastings(G, n_accepted, coefEdges, coefTriangle, p_large_step, lambda, verbose);
-    double edges = count_edges_cpp(G);
-    double triangle = count_triangle_cpp(G);
+  if (full_sample == true) {
+    for (int i = 0; i < total_iter; i++) {
+      Metropolis_Hastings(G, n_accepted, numOfEdges, numOfTriangles, numOfNodes, coefEdges, coefTriangle, p_large_step, lambda, verbose);
 
-    // Store the stats
-    all_stats(i, 0) = edges;
-    all_stats(i, 1) = triangle;
-    if (verbose >= 2) {
-      Rcpp::Rcout << "edges:" << edges << "\n";
-      Rcpp::Rcout << "triangle:" << triangle << "\n";
+      // Store the stats
+      stats(i, 0) = numOfEdges;
+      stats(i, 1) = numOfTriangles;
+
+      // Check the current state if necessary
+      if (verbose >= 2) {
+        Rcpp::Rcout << "edges:" << numOfEdges << ", triangle:" << numOfTriangles << "\n";
+      }
+    }
+  }
+  else {
+    for (int i = 0; i < total_iter; i++) {
+      Metropolis_Hastings(G, n_accepted, numOfEdges, numOfTriangles, numOfNodes, coefEdges, coefTriangle, p_large_step, lambda, verbose);
+
+      // Store the stats
+      if (i >= MCMC_burnin && (i - MCMC_burnin) % 1024 == 0) {
+        int index = (i - MCMC_burnin) / 1024;
+        stats(index, 0) = numOfEdges;
+        stats(index, 1) = numOfTriangles;
+      }
+      // Check the current state if necessary
+      if (verbose >= 2) {
+        Rcpp::Rcout << "edges:" << numOfEdges << ", triangle:" << numOfTriangles << "\n";
+      }
     }
   }
 
@@ -316,5 +343,5 @@ arma::mat create_MCMC(const arma::sp_mat& adjmat,
   }
 
   // Return the output
-  return all_stats;
+  return stats;
 }
