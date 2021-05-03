@@ -152,6 +152,7 @@ void Metropolis_Hastings(arma::sp_mat& adjmat,
                          double numOfNodes,
                          double coefEdges,
                          double coefTriangle,
+                         double p_one_node_flip,
                          double p_large_step,
                          double lambda,
                          int verbose) {
@@ -165,8 +166,8 @@ void Metropolis_Hastings(arma::sp_mat& adjmat,
   double changestat_triangle = numOfTriangles_next - numOfTriangles;
   double logratio = 0;
 
-  // If x < p_large_step, then select one node and flip its all links.
-  if (x < p_large_step) {
+  // If x < p_one_node_flip, then select one node and flip its all links.
+  if (x < p_one_node_flip) {
     if (verbose >= 5) {
       Rcpp::Rcout << "Flipping all the links of one node..." << "\n";
       }
@@ -198,8 +199,8 @@ void Metropolis_Hastings(arma::sp_mat& adjmat,
     }
   }
 
-  // If p_large_step <= x < 2 * p_large_step, then flip [lambda * n] links simultaneously.
-  else if (x >= p_large_step && x < 2 * p_large_step) {
+  // If p_one_node_flip <= x < p_one_node_flip + p_large_step, then flip [lambda * n] links simultaneously.
+  else if (x >= p_one_node_flip && x < p_one_node_flip + p_large_step) {
     if (verbose >= 5) {
       Rcpp::Rcout << "Flipping lambda * N links simultaneously..." << "\n";
     }
@@ -282,6 +283,7 @@ arma::mat create_MCMC(const arma::sp_mat& adjmat,
                       int MCMC_interval = 1024,
                       int MCMC_samplesize = 1024,
                       int MCMC_burnin = 1024 * 16,
+                      double p_one_node_flip = 0.01,
                       double p_large_step = 0.01,
                       double lambda = 0.5,
                       bool full_sample = false,
@@ -307,7 +309,7 @@ arma::mat create_MCMC(const arma::sp_mat& adjmat,
   // Start MCMC
   if (full_sample == true) {
     for (int i = 0; i < total_iter; i++) {
-      Metropolis_Hastings(G, n_accepted, numOfEdges, numOfTriangles, numOfNodes, coefEdges, coefTriangle, p_large_step, lambda, verbose);
+      Metropolis_Hastings(G, n_accepted, numOfEdges, numOfTriangles, numOfNodes, coefEdges, coefTriangle, p_one_node_flip, p_large_step, lambda, verbose);
 
       // Store the stats
       stats(i, 0) = numOfEdges;
@@ -321,11 +323,11 @@ arma::mat create_MCMC(const arma::sp_mat& adjmat,
   }
   else {
     for (int i = 0; i < total_iter; i++) {
-      Metropolis_Hastings(G, n_accepted, numOfEdges, numOfTriangles, numOfNodes, coefEdges, coefTriangle, p_large_step, lambda, verbose);
+      Metropolis_Hastings(G, n_accepted, numOfEdges, numOfTriangles, numOfNodes, coefEdges, coefTriangle, p_one_node_flip, p_large_step, lambda, verbose);
 
       // Store the stats
-      if (i >= MCMC_burnin && (i - MCMC_burnin) % 1024 == 0) {
-        int index = (i - MCMC_burnin) / 1024;
+      if (i >= MCMC_burnin && (i - MCMC_burnin) % MCMC_interval == 0) {
+        int index = (i - MCMC_burnin) / MCMC_interval;
         stats(index, 0) = numOfEdges;
         stats(index, 1) = numOfTriangles;
       }

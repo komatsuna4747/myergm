@@ -79,8 +79,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // Metropolis_Hastings
-void Metropolis_Hastings(arma::sp_mat& adjmat, double& n_accepted, double& numOfEdges, double& numOfTriangles, double numOfNodes, double coefEdges, double coefTriangle, double p_large_step, double lambda, int verbose);
-RcppExport SEXP _myergm_Metropolis_Hastings(SEXP adjmatSEXP, SEXP n_acceptedSEXP, SEXP numOfEdgesSEXP, SEXP numOfTrianglesSEXP, SEXP numOfNodesSEXP, SEXP coefEdgesSEXP, SEXP coefTriangleSEXP, SEXP p_large_stepSEXP, SEXP lambdaSEXP, SEXP verboseSEXP) {
+void Metropolis_Hastings(arma::sp_mat& adjmat, double& n_accepted, double& numOfEdges, double& numOfTriangles, double numOfNodes, double coefEdges, double coefTriangle, double p_one_node_flip, double p_large_step, double lambda, int verbose);
+RcppExport SEXP _myergm_Metropolis_Hastings(SEXP adjmatSEXP, SEXP n_acceptedSEXP, SEXP numOfEdgesSEXP, SEXP numOfTrianglesSEXP, SEXP numOfNodesSEXP, SEXP coefEdgesSEXP, SEXP coefTriangleSEXP, SEXP p_one_node_flipSEXP, SEXP p_large_stepSEXP, SEXP lambdaSEXP, SEXP verboseSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::sp_mat& >::type adjmat(adjmatSEXP);
@@ -90,16 +90,17 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type numOfNodes(numOfNodesSEXP);
     Rcpp::traits::input_parameter< double >::type coefEdges(coefEdgesSEXP);
     Rcpp::traits::input_parameter< double >::type coefTriangle(coefTriangleSEXP);
+    Rcpp::traits::input_parameter< double >::type p_one_node_flip(p_one_node_flipSEXP);
     Rcpp::traits::input_parameter< double >::type p_large_step(p_large_stepSEXP);
     Rcpp::traits::input_parameter< double >::type lambda(lambdaSEXP);
     Rcpp::traits::input_parameter< int >::type verbose(verboseSEXP);
-    Metropolis_Hastings(adjmat, n_accepted, numOfEdges, numOfTriangles, numOfNodes, coefEdges, coefTriangle, p_large_step, lambda, verbose);
+    Metropolis_Hastings(adjmat, n_accepted, numOfEdges, numOfTriangles, numOfNodes, coefEdges, coefTriangle, p_one_node_flip, p_large_step, lambda, verbose);
     return R_NilValue;
 END_RCPP
 }
 // create_MCMC
-arma::mat create_MCMC(const arma::sp_mat& adjmat, double coefEdges, double coefTriangle, int MCMC_interval, int MCMC_samplesize, int MCMC_burnin, double p_large_step, double lambda, bool full_sample, int verbose);
-RcppExport SEXP _myergm_create_MCMC(SEXP adjmatSEXP, SEXP coefEdgesSEXP, SEXP coefTriangleSEXP, SEXP MCMC_intervalSEXP, SEXP MCMC_samplesizeSEXP, SEXP MCMC_burninSEXP, SEXP p_large_stepSEXP, SEXP lambdaSEXP, SEXP full_sampleSEXP, SEXP verboseSEXP) {
+arma::mat create_MCMC(const arma::sp_mat& adjmat, double coefEdges, double coefTriangle, int MCMC_interval, int MCMC_samplesize, int MCMC_burnin, double p_one_node_flip, double p_large_step, double lambda, bool full_sample, int verbose);
+RcppExport SEXP _myergm_create_MCMC(SEXP adjmatSEXP, SEXP coefEdgesSEXP, SEXP coefTriangleSEXP, SEXP MCMC_intervalSEXP, SEXP MCMC_samplesizeSEXP, SEXP MCMC_burninSEXP, SEXP p_one_node_flipSEXP, SEXP p_large_stepSEXP, SEXP lambdaSEXP, SEXP full_sampleSEXP, SEXP verboseSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -109,11 +110,12 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type MCMC_interval(MCMC_intervalSEXP);
     Rcpp::traits::input_parameter< int >::type MCMC_samplesize(MCMC_samplesizeSEXP);
     Rcpp::traits::input_parameter< int >::type MCMC_burnin(MCMC_burninSEXP);
+    Rcpp::traits::input_parameter< double >::type p_one_node_flip(p_one_node_flipSEXP);
     Rcpp::traits::input_parameter< double >::type p_large_step(p_large_stepSEXP);
     Rcpp::traits::input_parameter< double >::type lambda(lambdaSEXP);
     Rcpp::traits::input_parameter< bool >::type full_sample(full_sampleSEXP);
     Rcpp::traits::input_parameter< int >::type verbose(verboseSEXP);
-    rcpp_result_gen = Rcpp::wrap(create_MCMC(adjmat, coefEdges, coefTriangle, MCMC_interval, MCMC_samplesize, MCMC_burnin, p_large_step, lambda, full_sample, verbose));
+    rcpp_result_gen = Rcpp::wrap(create_MCMC(adjmat, coefEdges, coefTriangle, MCMC_interval, MCMC_samplesize, MCMC_burnin, p_one_node_flip, p_large_step, lambda, full_sample, verbose));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -125,8 +127,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_myergm_change_one_link_modified", (DL_FUNC) &_myergm_change_one_link_modified, 6},
     {"_myergm_change_all_links_of_one_node", (DL_FUNC) &_myergm_change_all_links_of_one_node, 1},
     {"_myergm_change_multiple_links", (DL_FUNC) &_myergm_change_multiple_links, 2},
-    {"_myergm_Metropolis_Hastings", (DL_FUNC) &_myergm_Metropolis_Hastings, 10},
-    {"_myergm_create_MCMC", (DL_FUNC) &_myergm_create_MCMC, 10},
+    {"_myergm_Metropolis_Hastings", (DL_FUNC) &_myergm_Metropolis_Hastings, 11},
+    {"_myergm_create_MCMC", (DL_FUNC) &_myergm_create_MCMC, 11},
     {NULL, NULL, 0}
 };
 
