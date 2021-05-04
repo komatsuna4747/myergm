@@ -1,5 +1,5 @@
 #' Compute the loglikelihood ratio
-compute_loglikelihood_ratio <- function(theta, theta0, g_obs, g_mcmc){
+compute_loglikelihood_ratio <- function(theta, theta0, g_obs, g_mcmc) {
   # Compute the first term
   theta <- matrix(theta, nrow = 2, ncol = 1)
   first_term <- sum(g_obs %*% (theta - theta0))
