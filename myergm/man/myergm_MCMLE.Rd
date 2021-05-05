@@ -15,6 +15,7 @@ myergm_MCMLE(
   p_invert = 0.001,
   lambda = 0.5,
   verbose = 0,
+  second_round = TRUE,
   ...
 )
 }
@@ -42,6 +43,8 @@ When the number of vertices is large, it is recommended to set this probaility t
 
 \item{verbose}{A logical or an integer: if this is TRUE/1, the program will print out additional information about the progress of estimation and simulation.
 Higher values produce more verbosity.}
+
+\item{second_round}{A logical: If TRUE, MCMLE is implemented twice. Otherwise, only once.}
 
 \item{...}{Additional arguments, passed to other functions.}
 }
