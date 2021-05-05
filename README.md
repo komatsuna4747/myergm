@@ -37,7 +37,7 @@ edges    -1.6781074 -1.6853490
 triangle  0.1548246  0.1600625
 ```
 
-The estimates by `myergm` seem very close to that by `ergm`, although the computation time of `myergm`is far behind that of `ergm`.
+The estimates by `myergm` seem very close to those by `ergm`, although the computation time of `myergm`is far behind that of `ergm`.
 This point needs to be further investigated.
 
 ## If you can't install `myergm`...
