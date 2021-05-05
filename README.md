@@ -17,8 +17,8 @@ library(ergm)
 data(florentine)
 
 # Estimate the parameters.
-theta <- myergm::myergm_MCMLE(model = flomarriage ~ edges + triangle,
-                              seed = 334)
+theta_myergm <- myergm::myergm_MCMLE(model = flomarriage ~ edges + triangle,
+                                     seed = 334)
                               
 # Estimate the parameters by the original package `ergm`.
 original_ergm <- ergm(formula = flomarriage ~ edges + triangle, 
