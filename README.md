@@ -38,6 +38,7 @@ triangle  0.1548246  0.1600625
 ```
 
 The estimates by `myergm` seem very close to that by `ergm`, although the computation time of `myergm`is far behind that of `ergm`.
+This point needs to be further investigated.
 
 ## If you can't install `myergm`...
 It would be recommended to use Docker to replicate the example above. Provided that Docker is installed, you can create a Docker container for the replication as follows.
