@@ -9,27 +9,23 @@ count_triangle_cpp <- function(adjmat) {
     .Call(`_myergm_count_triangle_cpp`, adjmat)
 }
 
-change_one_link <- function(adjmat) {
-    .Call(`_myergm_change_one_link`, adjmat)
+change_one_link <- function(adjmat, numOfEdges, numOfTriangles, i, j, verbose) {
+    .Call(`_myergm_change_one_link`, adjmat, numOfEdges, numOfTriangles, i, j, verbose)
 }
 
-change_one_link_modified <- function(adjmat, numOfEdges, numOfTriangles, i, j, verbose) {
-    .Call(`_myergm_change_one_link_modified`, adjmat, numOfEdges, numOfTriangles, i, j, verbose)
-}
-
-change_all_links_of_one_node <- function(adjmat) {
-    .Call(`_myergm_change_all_links_of_one_node`, adjmat)
+change_all_links_of_one_node <- function(adjmat, i) {
+    .Call(`_myergm_change_all_links_of_one_node`, adjmat, i)
 }
 
 change_multiple_links <- function(adjmat, lambda) {
     .Call(`_myergm_change_multiple_links`, adjmat, lambda)
 }
 
-Metropolis_Hastings <- function(adjmat, n_accepted, numOfEdges, numOfTriangles, numOfNodes, coefEdges, coefTriangle, p_one_node_flip, p_large_step, lambda, verbose) {
-    invisible(.Call(`_myergm_Metropolis_Hastings`, adjmat, n_accepted, numOfEdges, numOfTriangles, numOfNodes, coefEdges, coefTriangle, p_one_node_flip, p_large_step, lambda, verbose))
+Metropolis_Hastings <- function(adjmat, n_accepted, n_one_node_swap, n_accepted_one_node_swap, n_large_step, n_accepted_large_step, n_invert, n_accepted_invert, numOfEdges, numOfTriangles, numOfNodes, coefEdges, coefTriangle, p_one_node_swap, p_large_step, p_invert, lambda, verbose) {
+    invisible(.Call(`_myergm_Metropolis_Hastings`, adjmat, n_accepted, n_one_node_swap, n_accepted_one_node_swap, n_large_step, n_accepted_large_step, n_invert, n_accepted_invert, numOfEdges, numOfTriangles, numOfNodes, coefEdges, coefTriangle, p_one_node_swap, p_large_step, p_invert, lambda, verbose))
 }
 
-create_MCMC <- function(adjmat, coefEdges, coefTriangle, MCMC_interval = 1024L, MCMC_samplesize = 1024L, MCMC_burnin = 1024 * 16L, p_one_node_flip = 0.01, p_large_step = 0.01, lambda = 0.5, full_sample = FALSE, verbose = 0L) {
-    .Call(`_myergm_create_MCMC`, adjmat, coefEdges, coefTriangle, MCMC_interval, MCMC_samplesize, MCMC_burnin, p_one_node_flip, p_large_step, lambda, full_sample, verbose)
+create_MCMC <- function(adjmat, coefEdges, coefTriangle, MCMC_interval = 1024L, MCMC_samplesize = 1024L, MCMC_burnin = 1024 * 16L, p_one_node_swap = 0.01, p_large_step = 0.01, p_invert = 0.01, lambda = 0.5, full_sample = FALSE, verbose = 0L) {
+    .Call(`_myergm_create_MCMC`, adjmat, coefEdges, coefTriangle, MCMC_interval, MCMC_samplesize, MCMC_burnin, p_one_node_swap, p_large_step, p_invert, lambda, full_sample, verbose)
 }
 
