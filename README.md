@@ -33,7 +33,7 @@ data.frame("myergm" = theta_myergm,
 
 ```
              myergm       ergm
-edtges   -1.6781074 -1.6853490
+edges    -1.6781074 -1.6853490
 triangle  0.1548246  0.1600625
 ```
 
