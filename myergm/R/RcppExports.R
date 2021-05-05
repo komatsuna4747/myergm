@@ -9,12 +9,8 @@ count_triangle_cpp <- function(adjmat) {
     .Call(`_myergm_count_triangle_cpp`, adjmat)
 }
 
-change_one_link <- function(adjmat) {
-    .Call(`_myergm_change_one_link`, adjmat)
-}
-
-change_one_link_modified <- function(adjmat, numOfEdges, numOfTriangles, i, j, verbose) {
-    .Call(`_myergm_change_one_link_modified`, adjmat, numOfEdges, numOfTriangles, i, j, verbose)
+change_one_link <- function(adjmat, numOfEdges, numOfTriangles, i, j, verbose) {
+    .Call(`_myergm_change_one_link`, adjmat, numOfEdges, numOfTriangles, i, j, verbose)
 }
 
 change_all_links_of_one_node <- function(adjmat) {

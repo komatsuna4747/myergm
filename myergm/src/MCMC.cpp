@@ -28,29 +28,7 @@ double count_triangle_cpp(const arma::sp_mat& adjmat) {
 
 
 // [[Rcpp::export]]
-arma::sp_mat change_one_link(const arma::sp_mat& adjmat) {
-  arma::sp_mat adjmat_next = adjmat;
-  double numOfNodes = adjmat.n_rows;
-
-  // Choose one dyad randomly and change the state.
-  // pick a random element
-  int i = unif_rand() * numOfNodes;
-  // pick a random element from what's left (there is one fewer to choose from)...
-  int j =  unif_rand() * (numOfNodes- 1);
-  // ...and adjust second choice to take into account the first choice
-  if (j >= i)
-  {
-    ++j;
-  }
-  adjmat_next(i, j) = 1 - adjmat_next(i, j);
-  adjmat_next(j, i) = 1 - adjmat_next(j, i);
-
-  return adjmat_next;
-}
-
-
-// [[Rcpp::export]]
-arma::sp_mat change_one_link_modified(const arma::sp_mat& adjmat, double& numOfEdges, double& numOfTriangles, int i, int j, int verbose) {
+arma::sp_mat change_one_link(const arma::sp_mat& adjmat, double& numOfEdges, double& numOfTriangles, int i, int j, int verbose) {
   arma::sp_mat G = adjmat;
 
   // Change the state of the selected dyad.
@@ -303,7 +281,7 @@ void Metropolis_Hastings(arma::sp_mat& adjmat,
       ++j;
     }
     // Store the results.
-    arma::sp_mat adjmat_next = change_one_link_modified(adjmat, numOfEdges_next, numOfTriangles_next, i, j, verbose);
+    arma::sp_mat adjmat_next = change_one_link(adjmat, numOfEdges_next, numOfTriangles_next, i, j, verbose);
 
     // Store the results.
     changestat_edges = numOfEdges_next - numOfEdges;
@@ -344,6 +322,9 @@ arma::mat create_MCMC(const arma::sp_mat& adjmat,
                       double lambda = 0.5,
                       bool full_sample = false,
                       int verbose = 0) {
+  // Necessary for R random number generator
+  GetRNGstate();
+
   // Total number of iterations
   int total_iter = MCMC_burnin + MCMC_interval * MCMC_samplesize;
 
@@ -453,6 +434,9 @@ arma::mat create_MCMC(const arma::sp_mat& adjmat,
     double invert_rate = (n_accepted_invert / n_invert) * 100;
     Rcpp::Rcout << "Inverting the adjacency matrix: " << n_accepted_invert << "/" << n_invert << " = " << invert_rate << " %." << "\n";
   }
+
+  // This must be called after GetRNGstate before returning to R.
+  PutRNGstate();
 
   // Return the output
   return stats;

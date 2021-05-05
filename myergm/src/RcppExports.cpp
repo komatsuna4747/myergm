@@ -29,19 +29,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // change_one_link
-arma::sp_mat change_one_link(const arma::sp_mat& adjmat);
-RcppExport SEXP _myergm_change_one_link(SEXP adjmatSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::sp_mat& >::type adjmat(adjmatSEXP);
-    rcpp_result_gen = Rcpp::wrap(change_one_link(adjmat));
-    return rcpp_result_gen;
-END_RCPP
-}
-// change_one_link_modified
-arma::sp_mat change_one_link_modified(const arma::sp_mat& adjmat, double& numOfEdges, double& numOfTriangles, int i, int j, int verbose);
-RcppExport SEXP _myergm_change_one_link_modified(SEXP adjmatSEXP, SEXP numOfEdgesSEXP, SEXP numOfTrianglesSEXP, SEXP iSEXP, SEXP jSEXP, SEXP verboseSEXP) {
+arma::sp_mat change_one_link(const arma::sp_mat& adjmat, double& numOfEdges, double& numOfTriangles, int i, int j, int verbose);
+RcppExport SEXP _myergm_change_one_link(SEXP adjmatSEXP, SEXP numOfEdgesSEXP, SEXP numOfTrianglesSEXP, SEXP iSEXP, SEXP jSEXP, SEXP verboseSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -51,7 +40,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type i(iSEXP);
     Rcpp::traits::input_parameter< int >::type j(jSEXP);
     Rcpp::traits::input_parameter< int >::type verbose(verboseSEXP);
-    rcpp_result_gen = Rcpp::wrap(change_one_link_modified(adjmat, numOfEdges, numOfTriangles, i, j, verbose));
+    rcpp_result_gen = Rcpp::wrap(change_one_link(adjmat, numOfEdges, numOfTriangles, i, j, verbose));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -131,8 +120,7 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_myergm_count_edges_cpp", (DL_FUNC) &_myergm_count_edges_cpp, 1},
     {"_myergm_count_triangle_cpp", (DL_FUNC) &_myergm_count_triangle_cpp, 1},
-    {"_myergm_change_one_link", (DL_FUNC) &_myergm_change_one_link, 1},
-    {"_myergm_change_one_link_modified", (DL_FUNC) &_myergm_change_one_link_modified, 6},
+    {"_myergm_change_one_link", (DL_FUNC) &_myergm_change_one_link, 6},
     {"_myergm_change_all_links_of_one_node", (DL_FUNC) &_myergm_change_all_links_of_one_node, 1},
     {"_myergm_change_multiple_links", (DL_FUNC) &_myergm_change_multiple_links, 2},
     {"_myergm_Metropolis_Hastings", (DL_FUNC) &_myergm_Metropolis_Hastings, 18},
