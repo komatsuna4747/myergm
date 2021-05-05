@@ -127,6 +127,6 @@ myergm_MCMLE <- function(model,
   print(glue::glue("Parameter estimates in the second round\n edges: {theta[[1]]}, triangle: {theta[[2]]}"))
 
   # Return the output
-  rownames(theta) <- c("edtges", "triangle")
+  rownames(theta) <- c("edges", "triangle")
   return(theta)
 }
