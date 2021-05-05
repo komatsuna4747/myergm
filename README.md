@@ -8,7 +8,7 @@ This trial is motivated by the following blog posts:
 - [RでERGMを実装したかった（が、失敗した）(Wanted to implement an ERGM in R, but failed)](http://meana0.hatenablog.com/entry/2019/12/21/120043)
 
 ## Example
-```
+```r
 # Install the package.
 devtools::install_github("komatsuna4747/myergm@main", subdir = "myergm")
 
