@@ -22,4 +22,7 @@ Imports:
     ergm,
     igraph,
     glue,
-    stringr
+    stringr,
+    Matrix
+Suggests: 
+    testthat

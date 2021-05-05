@@ -13,8 +13,8 @@ change_one_link <- function(adjmat, numOfEdges, numOfTriangles, i, j, verbose) {
     .Call(`_myergm_change_one_link`, adjmat, numOfEdges, numOfTriangles, i, j, verbose)
 }
 
-change_all_links_of_one_node <- function(adjmat) {
-    .Call(`_myergm_change_all_links_of_one_node`, adjmat)
+change_all_links_of_one_node <- function(adjmat, i) {
+    .Call(`_myergm_change_all_links_of_one_node`, adjmat, i)
 }
 
 change_multiple_links <- function(adjmat, lambda) {

@@ -44,7 +44,7 @@ myergm_MCMLE <- function(model,
   # Check if the formula is valid.
   rhs <- as.character(as.formula(model))[[3]]
   terms_rhs <- unlist(stringr::str_split(string = rhs, pattern = " \\+ "))
-  if (terms_rhs[[1]] != "edges" | terms_rhs[[2]] != "triangle") {
+  if (length(terms_rhs) != 2 | terms_rhs[[1]] != "edges" | terms_rhs[[2]] != "triangle") {
     stop("myergm_MCMLE() only accepts '~ edges + triangle' model.")
   }
 

@@ -63,13 +63,10 @@ arma::sp_mat change_one_link(const arma::sp_mat& adjmat, double& numOfEdges, dou
 
 
 // [[Rcpp::export]]
-arma::sp_mat change_all_links_of_one_node(const arma::sp_mat& adjmat) {
+arma::sp_mat change_all_links_of_one_node(const arma::sp_mat& adjmat, int i) {
   arma::sp_mat adjmat_next = adjmat;
-  double numOfNodes = adjmat.n_rows;
 
-  // Choose one node randomly.
-  // pick a random element
-  int i = unif_rand() * numOfNodes;
+  // Change all links of one node
   arma::sp_mat G_i = adjmat.col(i);
   G_i = 1 - G_i;
   adjmat_next.col(i) = G_i;
@@ -159,8 +156,11 @@ void Metropolis_Hastings(arma::sp_mat& adjmat,
     // Update the counter
     n_one_node_swap += 1;
 
+    // Choose one node randomly.
+    int i = unif_rand() * numOfNodes;
+
     // Update all the links of one node.
-    arma::sp_mat adjmat_next = change_all_links_of_one_node(adjmat);
+    arma::sp_mat adjmat_next = change_all_links_of_one_node(adjmat, i);
 
     // Store the results.
     numOfEdges_next = count_edges_cpp(adjmat_next);
