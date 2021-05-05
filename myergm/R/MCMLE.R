@@ -13,6 +13,7 @@
 #' @param lambda Fraction of links updated for large step.
 #' @param verbose A logical or an integer: if this is TRUE/1, the program will print out additional information about the progress of estimation and simulation.
 #' Higher values produce more verbosity.
+#' @param second_round A logical: If TRUE, MCMLE is implemented twice. Otherwise, only once.
 #' @param ... Additional arguments, passed to other functions.
 #' @import ergm
 #' @importFrom ergm ergm.getnetwork
@@ -40,6 +41,7 @@ myergm_MCMLE <- function(model,
                          p_invert = 0.001,
                          lambda = 0.5,
                          verbose = 0,
+                         second_round = TRUE,
                          ...) {
   # Check if the formula is valid.
   rhs <- as.character(as.formula(model))[[3]]
@@ -97,34 +99,36 @@ myergm_MCMLE <- function(model,
   theta <- theta0 + solve(cov(mcmc)) %*% t(g_obs - m0)
 
   # Print the estimates
-  print(glue::glue("Parameter estimates in the first round\n edges: {theta[[1]]}, triangle: {theta[[2]]}"))
+  message(glue::glue("Parameter estimates in the first round\n edges: {theta[[1]]}, triangle: {theta[[2]]}"))
 
-  # Start the second round of MCMC.
-  if (verbose >= 1) {
-    message(glue::glue("Starting the second round of MCMC...\n Increasing MCMC sample size from {MCMC_samplesize} to {4 * MCMC_samplesize}."))
+  # Start the second round of MCMC if second_round = TRUE.
+  if (second_round == TRUE) {
+    if (verbose >= 1) {
+      message(glue::glue("Starting the second round of MCMC...\n Increasing MCMC sample size from {MCMC_samplesize} to {4 * MCMC_samplesize}."))
+    }
+    mcmc <- create_MCMC(adjmat = g,
+                        coefEdges = theta[[1]],
+                        coefTriangle = theta[[2]],
+                        MCMC_samplesize = MCMC_samplesize * 4,
+                        MCMC_burnin = MCMC_burnin,
+                        MCMC_interval = MCMC_interval,
+                        p_one_node_swap = p_one_node_swap,
+                        p_large_step = p_large_step,
+                        p_invert = p_invert,
+                        lambda = lambda,
+                        full_sample = FALSE,
+                        verbose = verbose)
+
+    # Get the estimates
+    if (verbose >= 1) {
+      message("Using log-normal approximation (no optim)")
+    }
+    m0 <- matrix(c(mean(mcmc[,1]), mean(mcmc[,2])), nrow = 1, ncol = 2)
+    theta <- theta + solve(cov(mcmc)) %*% t(g_obs - m0)
+
+    # Print the estimates if verbose >= 1
+    message(glue::glue("Parameter estimates in the second round\n edges: {theta[[1]]}, triangle: {theta[[2]]}"))
   }
-  mcmc <- create_MCMC(adjmat = g,
-                       coefEdges = theta[[1]],
-                       coefTriangle = theta[[2]],
-                       MCMC_samplesize = MCMC_samplesize * 4,
-                       MCMC_burnin = MCMC_burnin,
-                       MCMC_interval = MCMC_interval,
-                       p_one_node_swap = p_one_node_swap,
-                       p_large_step = p_large_step,
-                       p_invert = p_invert,
-                       lambda = lambda,
-                       full_sample = FALSE,
-                       verbose = verbose)
-
-  # Get the estimates
-  if (verbose >= 1) {
-    message("Using log-normal approximation (no optim)")
-  }
-  m0 <- matrix(c(mean(mcmc[,1]), mean(mcmc[,2])), nrow = 1, ncol = 2)
-  theta <- theta + solve(cov(mcmc)) %*% t(g_obs - m0)
-
-  # Print the estimates
-  print(glue::glue("Parameter estimates in the second round\n edges: {theta[[1]]}, triangle: {theta[[2]]}"))
 
   # Return the output
   rownames(theta) <- c("edges", "triangle")
