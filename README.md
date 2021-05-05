@@ -7,7 +7,7 @@ This trial is motivated by the following blog posts:
 - [Implementing an ERGM from scratch in Python](https://computational-communication.com/ergm-python/)
 - [RでERGMを実装したかった（が、失敗した）(Wanted to implement an ERGM in R, but failed)](http://meana0.hatenablog.com/entry/2019/12/21/120043)
 
-# Example
+## Example
 ```
 # Install the package.
 devtools::install_github("komatsuna4747/myergm@main", subdir = "myergm")
@@ -39,10 +39,10 @@ triangle  0.1548246  0.1600625
 
 The estimates by `myergm` seem very close to that by `ergm`, although the computation time of `myergm`is far behind that of `ergm`.
 
-# If you have a trouble in installing `myergm`...
+## When you can't install `myergm`...
 It would be recommended to use Docker to replicate the example above. Provided that Docker is installed, you can create a Docker container for the replication as follows.
 
 1. Change `.env.example` to `.env` and modify the environment variables as appropriate. You can check USERID (uid) and GROUPID (gid) by typing `id` on Linux.
-2. Build a Docker image by `docker-compose build`. This will take a few minutes.
-3. Start a Docker container by `docker-compose up -d`.
-4. Enter `http://localhost:8787` on your browser. Then RStudio will be launched. 
+1. Build a Docker image by `docker-compose build`. This will take a few minutes. Note that `.env`, `Dockerfile`, and `docker-compose.yml` must be all in the current directory.
+1. Start a Docker container by `docker-compose up -d`.
+1. Enter `http://localhost:8787` on your browser. Then RStudio will be launched. 
