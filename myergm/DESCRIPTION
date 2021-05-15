@@ -23,6 +23,7 @@ Imports:
     igraph,
     glue,
     stringr,
-    Matrix
+    Matrix,
+    stats
 Suggests: 
     testthat
