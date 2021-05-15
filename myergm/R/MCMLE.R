@@ -16,12 +16,7 @@
 #' @param second_round A logical: If TRUE, MCMLE is implemented twice. Otherwise, only once.
 #' @param ... Additional arguments, passed to other functions.
 #' @import ergm
-#' @importFrom ergm ergm.getnetwork
-#' @importFrom intergraph asIgraph
-#' @importFrom igraph as_adjacency_matrix
-#' @importFrom glue glue
-#' @importFrom stats cov as.formula
-#' @importFrom stringr str_split
+#' @importFrom stats as.formula cov
 #' @return Estimates of `edges` and `triangle` parameters
 #' @examples
 #' # Load a network object
