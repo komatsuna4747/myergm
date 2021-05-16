@@ -1,5 +1,6 @@
 # Implementing a toy ERGM from scratch in R
-This package allows to use a large step sampler in MCMC suggested by Mele (2017).  
+This package allows to use a large step sampler in MCMC suggested by Mele (2017). 
+I just added this (ANGELO)
 
 The `myergm` package tries to estimate the `edges` and `triangle` parameters from scratch as much as possible. 
 If you carefully look at the source code, you will realize that `myergm` implements an MPLE using the `ergm` package. 
