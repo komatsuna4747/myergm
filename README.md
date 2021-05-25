@@ -1,6 +1,4 @@
 # Implementing a toy ERGM from scratch in R
-This package allows to use a large step sampler in MCMC suggested by Mele (2017). 
-I just added this (ANGELO)
 
 The `myergm` package tries to estimate the `edges` and `triangle` parameters from scratch as much as possible. 
 If you carefully look at the source code, you will realize that `myergm` implements an MPLE using the `ergm` package. 
@@ -43,6 +41,8 @@ triangle  0.1548246  0.1600625
 The estimates by `myergm` seem very close to those by `ergm`, although the computation time of `myergm`is far behind that of `ergm`.
 This point needs to be further investigated.
 
+To improve convergence of MCMC, this package allows to use a large step sampler in MCMC suggested by Mele (2017).
+
 ## If you can't install `myergm`...
 It would be recommended to use Docker to replicate the example above. Provided that Docker is installed, you can create a Docker container for the replication as follows.
 
@@ -50,3 +50,6 @@ It would be recommended to use Docker to replicate the example above. Provided t
 1. Build a Docker image by `docker-compose build`. This will take a few minutes. Note that `.env`, `Dockerfile`, and `docker-compose.yml` must be all in the current directory.
 1. Start a Docker container by `docker-compose up -d`.
 1. Enter `http://localhost:8787` on your browser. Then RStudio will be launched. 
+
+## References
+- Mele, Angelo (2017), "A Structural Model of Dense Network Formation", *Econometrica* **85**(2), 825–850.
