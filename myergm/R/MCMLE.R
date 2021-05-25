@@ -25,6 +25,8 @@
 #'
 #' # Estimate the parameters
 #' theta <- myergm_MCMLE(model = flomarriage ~ edges + triangle, seed = 334)
+#'
+#' theta
 #' @export
 myergm_MCMLE <- function(model,
                          seed = NULL,
