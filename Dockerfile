@@ -1,7 +1,11 @@
-FROM rocker/verse:3.6.3
+FROM rocker/verse:4.0.5
 
 # Installing necessary packages.
-RUN R -e "install.packages(c('Rcpp', 'RcppArmadillo', 'statnet', 'igraph', 'intergraph'), repos = c(CRAN = 'https://cloud.r-project.org'))"
+RUN Rscript -e "install.packages(c('renv', 'devtools'), repos = 'https://cran.rstudio.com')"
+WORKDIR ./
+COPY ./myergm/renv.lock renv.lock
+RUN Rscript -e "renv::restore(repos = 'https://cran.rstudio.com')"
 
 # Installing the package 'myergm'.
-RUN R -e "devtools::install_github('komatsuna4747/myergm@main', subdir = 'myergm')"
+COPY ./myergm myergm
+RUN R CMD INSTALL --no-multiarch --with-keep.source myergm
