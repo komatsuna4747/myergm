@@ -55,7 +55,7 @@ myergm_MCMLE <- function(model,
     message("Starting MPLE...")
   }
   MPLE <- ergm(model, estimate = "MPLE")
-  theta0 <- MPLE$coef
+  theta0 <- coef(MPLE)
 
   # Get the adjacency matrix
   if (verbose >= 1) {
