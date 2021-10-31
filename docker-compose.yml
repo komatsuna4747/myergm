@@ -13,6 +13,8 @@ services:
       - DISABLE_AUTH=true
       - USERID=${USERID}
       - GROUPID=${GROUPID}
+      - ${PATH_TO_RSTUDIO_CONFIG}:/home/rstudio/.config/rstudio
+      - ${RENV_PATHS_CACHE_HOST}:/home/rstudio/.local/share/renv/cache
     volumes:
       - ${PWD}:/home/rstudio
     tty: true
