@@ -22,11 +22,11 @@
 #' # Load a network object
 #' library(ergm)
 #' data(florentine)
-#'
+#'\dontrun{
 #' # Estimate the parameters
 #' theta <- myergm_MCMLE(model = flomarriage ~ edges + triangle, seed = 334)
-#'
 #' theta
+#' }
 #' @export
 myergm_MCMLE <- function(model,
                          seed = NULL,
@@ -55,7 +55,7 @@ myergm_MCMLE <- function(model,
     message("Starting MPLE...")
   }
   MPLE <- ergm(model, estimate = "MPLE")
-  theta0 <- coef(MPLE)
+  theta0 <- stats::coef(MPLE)
 
   # Get the adjacency matrix
   if (verbose >= 1) {

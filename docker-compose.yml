@@ -5,7 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: komatsuERGM
+    container_name: myERGM
     ports:
       - 8787:8787
     environment:
@@ -16,6 +16,6 @@ services:
       - ${PATH_TO_RSTUDIO_CONFIG}:/home/rstudio/.config/rstudio
       - ${RENV_PATHS_CACHE_HOST}:/home/rstudio/.local/share/renv/cache
     volumes:
-      - ${PWD}:/home/rstudio
+      - ${PWD}:/home/rstudio/myergm
     tty: true
     stdin_open: true

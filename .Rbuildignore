@@ -4,3 +4,8 @@
 ^\.Rproj\.user$
 ^LICENSE\.md$
 ^\.github$
+^Dockerfile$
+^docker-compose\.yml$
+^rmarkdown$
+^\.env$
+^\.env\.example$
