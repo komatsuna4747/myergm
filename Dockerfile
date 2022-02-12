@@ -1,11 +1,8 @@
-FROM rocker/verse:4.0.5
+FROM rocker/rstudio:4.0.5
 
 # Installing necessary packages.
-RUN Rscript -e "install.packages(c('renv', 'devtools'), repos = 'https://cran.rstudio.com')"
-WORKDIR ./
-COPY ./myergm/renv.lock renv.lock
-RUN Rscript -e "renv::restore(repos = 'https://cran.rstudio.com')"
+RUN echo "options(repos = c(CRAN = 'https://packagemanager.rstudio.com/all/__linux__/centos7/latest'), download.file.method = 'libcurl')" >> /usr/local/lib/R/etc/Rprofile.site
+RUN Rscript -e "install.packages('renv')"
 
-# Installing the package 'myergm'.
-COPY ./myergm myergm
-RUN R CMD INSTALL --no-multiarch --with-keep.source myergm
+RUN mkdir -p /home/rstudio/.local/share/renv/cache \
+    && chown -R rstudio:rstudio /home/rstudio
