@@ -19,6 +19,32 @@ create_MCMC(
   verbose = 0L
 )
 }
+\arguments{
+\item{adjmat}{an adjacency matrix}
+
+\item{coefEdges}{a coeffcient for edges}
+
+\item{coefTriangle}{a coeffcient for triangles}
+
+\item{MCMC_interval}{interval between MCMC sampling}
+
+\item{MCMC_samplesize}{the number of samples drawn from MCMC}
+
+\item{MCMC_burnin}{burnin for MCMC}
+
+\item{p_one_node_swap}{probability that links of one node are all swapped in one step.}
+
+\item{p_large_step}{probability that multiple likes are swapped in one step.}
+
+\item{p_invert}{probability of inverting an adjacency matrix}
+
+\item{lambda}{parameter for p_large_step}
+
+\item{full_sample}{something important}
+
+\item{verbose}{A logical or an integer to control the amount of progress and diagnostic information to be printed.
+FALSE/0 produces minimal output, wit higher values producing more detail.}
+}
 \description{
 Main wrapper function for MCMC.
 }
