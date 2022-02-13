@@ -19,10 +19,10 @@
 #' @importFrom stats as.formula cov
 #' @return Estimates of `edges` and `triangle` parameters
 #' @examples
+#' \dontrun{
 #' # Load a network object
 #' library(ergm)
 #' data(florentine)
-#'\dontrun{
 #' # Estimate the parameters
 #' theta <- myergm_MCMLE(model = flomarriage ~ edges + triangle, seed = 334)
 #' theta

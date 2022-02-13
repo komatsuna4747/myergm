@@ -55,12 +55,12 @@ Estimates of \code{edges} and \code{triangle} parameters
 Implement an MCMLE to estimate parameters.
 }
 \examples{
+\dontrun{
 # Load a network object
 library(ergm)
 data(florentine)
-
 # Estimate the parameters
 theta <- myergm_MCMLE(model = flomarriage ~ edges + triangle, seed = 334)
-
 theta
+}
 }

@@ -25,6 +25,8 @@ Metropolis_Hastings <- function(adjmat, n_accepted, n_one_node_swap, n_accepted_
     invisible(.Call(`_myergm_Metropolis_Hastings`, adjmat, n_accepted, n_one_node_swap, n_accepted_one_node_swap, n_large_step, n_accepted_large_step, n_invert, n_accepted_invert, numOfEdges, numOfTriangles, numOfNodes, coefEdges, coefTriangle, p_one_node_swap, p_large_step, p_invert, lambda, verbose))
 }
 
+#' Main wrapper function for MCMC.
+#' @export
 create_MCMC <- function(adjmat, coefEdges, coefTriangle, MCMC_interval = 1024L, MCMC_samplesize = 1024L, MCMC_burnin = 1024 * 16L, p_one_node_swap = 0.01, p_large_step = 0.01, p_invert = 0.01, lambda = 0.5, full_sample = FALSE, verbose = 0L) {
     .Call(`_myergm_create_MCMC`, adjmat, coefEdges, coefTriangle, MCMC_interval, MCMC_samplesize, MCMC_burnin, p_one_node_swap, p_large_step, p_invert, lambda, full_sample, verbose)
 }

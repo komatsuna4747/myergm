@@ -307,8 +307,8 @@ void Metropolis_Hastings(arma::sp_mat& adjmat,
   }
 }
 
-
-// Main wrapper function for MCMC.
+//' Main wrapper function for MCMC.
+//' @export
 // [[Rcpp::export]]
 arma::mat create_MCMC(const arma::sp_mat& adjmat,
                       double coefEdges,
