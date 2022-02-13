@@ -307,8 +307,21 @@ void Metropolis_Hastings(arma::sp_mat& adjmat,
   }
 }
 
-
-// Main wrapper function for MCMC.
+//' Main wrapper function for MCMC.
+//' @param adjmat an adjacency matrix
+//' @param coefEdges a coeffcient for edges
+//' @param coefTriangle a coeffcient for triangles
+//' @param MCMC_interval interval between MCMC sampling
+//' @param MCMC_samplesize the number of samples drawn from MCMC
+//' @param MCMC_burnin burnin for MCMC
+//' @param p_one_node_swap probability that links of one node are all swapped in one step.
+//' @param p_large_step probability that multiple likes are swapped in one step.
+//' @param p_invert probability of inverting an adjacency matrix
+//' @param lambda parameter for p_large_step
+//' @param full_sample something important
+//' @param verbose A logical or an integer to control the amount of progress and diagnostic information to be printed.
+//' FALSE/0 produces minimal output, wit higher values producing more detail.
+//' @export
 // [[Rcpp::export]]
 arma::mat create_MCMC(const arma::sp_mat& adjmat,
                       double coefEdges,

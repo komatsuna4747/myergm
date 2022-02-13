@@ -25,6 +25,21 @@ Metropolis_Hastings <- function(adjmat, n_accepted, n_one_node_swap, n_accepted_
     invisible(.Call(`_myergm_Metropolis_Hastings`, adjmat, n_accepted, n_one_node_swap, n_accepted_one_node_swap, n_large_step, n_accepted_large_step, n_invert, n_accepted_invert, numOfEdges, numOfTriangles, numOfNodes, coefEdges, coefTriangle, p_one_node_swap, p_large_step, p_invert, lambda, verbose))
 }
 
+#' Main wrapper function for MCMC.
+#' @param adjmat an adjacency matrix
+#' @param coefEdges a coeffcient for edges
+#' @param coefTriangle a coeffcient for triangles
+#' @param MCMC_interval interval between MCMC sampling
+#' @param MCMC_samplesize the number of samples drawn from MCMC
+#' @param MCMC_burnin burnin for MCMC
+#' @param p_one_node_swap probability that links of one node are all swapped in one step.
+#' @param p_large_step probability that multiple likes are swapped in one step.
+#' @param p_invert probability of inverting an adjacency matrix
+#' @param lambda parameter for p_large_step
+#' @param full_sample something important
+#' @param verbose A logical or an integer to control the amount of progress and diagnostic information to be printed.
+#' FALSE/0 produces minimal output, wit higher values producing more detail.
+#' @export
 create_MCMC <- function(adjmat, coefEdges, coefTriangle, MCMC_interval = 1024L, MCMC_samplesize = 1024L, MCMC_burnin = 1024 * 16L, p_one_node_swap = 0.01, p_large_step = 0.01, p_invert = 0.01, lambda = 0.5, full_sample = FALSE, verbose = 0L) {
     .Call(`_myergm_create_MCMC`, adjmat, coefEdges, coefTriangle, MCMC_interval, MCMC_samplesize, MCMC_burnin, p_one_node_swap, p_large_step, p_invert, lambda, full_sample, verbose)
 }

@@ -11,25 +11,32 @@ This trial is motivated by the following blog posts:
 ## Example
 ```r
 # Install the package.
-devtools::install_github("komatsuna4747/myergm@main", subdir = "myergm")
+devtools::install_github("komatsuna4747/myergm")
 
 # Load the flomarriage network data.
 library(ergm)
 data(florentine)
 
 # Estimate the parameters.
-theta_myergm <- myergm::myergm_MCMLE(model = flomarriage ~ edges + triangle,
-                                     seed = 334)
-                              
-# Estimate the parameters by the original package `ergm`.
-original_ergm <- ergm(formula = flomarriage ~ edges + triangle, 
-                      control = control.ergm(seed = 334))
+theta_myergm <- 
+  myergm::myergm_MCMLE(
+    model = flomarriage ~ edges + triangle,
+    seed = 334
+  )
 
+# Estimate the parameters by the original package `ergm`.
+original_ergm <- 
+  ergm(
+    formula = flomarriage ~ edges + triangle, 
+    control = control.ergm(seed = 334)
+  )
 theta_ergm <- original_ergm$coef
 
 # Compare the estimates.
-data.frame("myergm" = theta_myergm,
-           "ergm" = theta_ergm)
+data.frame(
+  "myergm" = theta_myergm,
+  "ergm" = theta_ergm
+)
 ```
 
 ```
