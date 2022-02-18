@@ -6,11 +6,56 @@
 
 using namespace Rcpp;
 
-#ifdef RCPP_USE_GLOBAL_ROSTREAM
-Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
-Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
-#endif
-
+// count_edges
+double count_edges(const arma::mat& adjmat);
+RcppExport SEXP _myergm_count_edges(SEXP adjmatSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type adjmat(adjmatSEXP);
+    rcpp_result_gen = Rcpp::wrap(count_edges(adjmat));
+    return rcpp_result_gen;
+END_RCPP
+}
+// count_triangle
+double count_triangle(const arma::mat& adjmat);
+RcppExport SEXP _myergm_count_triangle(SEXP adjmatSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type adjmat(adjmatSEXP);
+    rcpp_result_gen = Rcpp::wrap(count_triangle(adjmat));
+    return rcpp_result_gen;
+END_RCPP
+}
+// update_one_link
+arma::mat update_one_link(const arma::mat& adjmat, double& numOfEdges, double& numOfTriangles, int i, int j, int verbose);
+RcppExport SEXP _myergm_update_one_link(SEXP adjmatSEXP, SEXP numOfEdgesSEXP, SEXP numOfTrianglesSEXP, SEXP iSEXP, SEXP jSEXP, SEXP verboseSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type adjmat(adjmatSEXP);
+    Rcpp::traits::input_parameter< double& >::type numOfEdges(numOfEdgesSEXP);
+    Rcpp::traits::input_parameter< double& >::type numOfTriangles(numOfTrianglesSEXP);
+    Rcpp::traits::input_parameter< int >::type i(iSEXP);
+    Rcpp::traits::input_parameter< int >::type j(jSEXP);
+    Rcpp::traits::input_parameter< int >::type verbose(verboseSEXP);
+    rcpp_result_gen = Rcpp::wrap(update_one_link(adjmat, numOfEdges, numOfTriangles, i, j, verbose));
+    return rcpp_result_gen;
+END_RCPP
+}
+// update_all_links_of_one_node
+arma::mat update_all_links_of_one_node(const arma::mat& adjmat, int i);
+RcppExport SEXP _myergm_update_all_links_of_one_node(SEXP adjmatSEXP, SEXP iSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type adjmat(adjmatSEXP);
+    Rcpp::traits::input_parameter< int >::type i(iSEXP);
+    rcpp_result_gen = Rcpp::wrap(update_all_links_of_one_node(adjmat, i));
+    return rcpp_result_gen;
+END_RCPP
+}
 // count_edges_cpp
 double count_edges_cpp(const arma::sp_mat& adjmat);
 RcppExport SEXP _myergm_count_edges_cpp(SEXP adjmatSEXP) {
@@ -122,8 +167,34 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// edit_spmat
+arma::sp_mat edit_spmat(int N);
+RcppExport SEXP _myergm_edit_spmat(SEXP NSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type N(NSEXP);
+    rcpp_result_gen = Rcpp::wrap(edit_spmat(N));
+    return rcpp_result_gen;
+END_RCPP
+}
+// edit_mat
+arma::mat edit_mat(int N);
+RcppExport SEXP _myergm_edit_mat(SEXP NSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type N(NSEXP);
+    rcpp_result_gen = Rcpp::wrap(edit_mat(N));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_myergm_count_edges", (DL_FUNC) &_myergm_count_edges, 1},
+    {"_myergm_count_triangle", (DL_FUNC) &_myergm_count_triangle, 1},
+    {"_myergm_update_one_link", (DL_FUNC) &_myergm_update_one_link, 6},
+    {"_myergm_update_all_links_of_one_node", (DL_FUNC) &_myergm_update_all_links_of_one_node, 2},
     {"_myergm_count_edges_cpp", (DL_FUNC) &_myergm_count_edges_cpp, 1},
     {"_myergm_count_triangle_cpp", (DL_FUNC) &_myergm_count_triangle_cpp, 1},
     {"_myergm_change_one_link", (DL_FUNC) &_myergm_change_one_link, 6},
@@ -131,6 +202,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_myergm_change_multiple_links", (DL_FUNC) &_myergm_change_multiple_links, 2},
     {"_myergm_Metropolis_Hastings", (DL_FUNC) &_myergm_Metropolis_Hastings, 18},
     {"_myergm_create_MCMC", (DL_FUNC) &_myergm_create_MCMC, 12},
+    {"_myergm_edit_spmat", (DL_FUNC) &_myergm_edit_spmat, 1},
+    {"_myergm_edit_mat", (DL_FUNC) &_myergm_edit_mat, 1},
     {NULL, NULL, 0}
 };
 
