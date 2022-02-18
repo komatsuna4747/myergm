@@ -1,16 +1,13 @@
 Package: myergm
-Title: Implementing a Toy ERGM from Scratch in R
-Version: 1.0.0
+Title: What the Package Does (One Line, Title Case)
+Version: 0.0.0.9000
 Authors@R: 
-    person(given = "Shota",
-           family = "Komatsu",
+    person(given = "First",
+           family = "Last",
            role = c("aut", "cre"),
            email = "first.last@example.com",
            comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: The myergm package tries to estimate the edges and triangle parameters 
-from scratch as much as possible. 
-If you carefully look at the source code, you will realize that myergm implements 
-an MPLE using the ergm package. This is totally attributed to the author's laziness.
+Description: What the package does (one paragraph).
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
