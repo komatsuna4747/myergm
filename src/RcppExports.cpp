@@ -6,53 +6,24 @@
 
 using namespace Rcpp;
 
-// count_edges
-double count_edges(const arma::mat& adjmat);
-RcppExport SEXP _myergm_count_edges(SEXP adjmatSEXP) {
+// run_network_sampler
+arma::mat run_network_sampler(const arma::mat& adjacency_matrix, double coefEdges, double coefTriangle, int MCMC_interval, int MCMC_samplesize, int MCMC_burnin, double p_one_node_swap, double p_large_step, double p_invert, double lambda, int verbose);
+RcppExport SEXP _myergm_run_network_sampler(SEXP adjacency_matrixSEXP, SEXP coefEdgesSEXP, SEXP coefTriangleSEXP, SEXP MCMC_intervalSEXP, SEXP MCMC_samplesizeSEXP, SEXP MCMC_burninSEXP, SEXP p_one_node_swapSEXP, SEXP p_large_stepSEXP, SEXP p_invertSEXP, SEXP lambdaSEXP, SEXP verboseSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::mat& >::type adjmat(adjmatSEXP);
-    rcpp_result_gen = Rcpp::wrap(count_edges(adjmat));
-    return rcpp_result_gen;
-END_RCPP
-}
-// count_triangle
-double count_triangle(const arma::mat& adjmat);
-RcppExport SEXP _myergm_count_triangle(SEXP adjmatSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::mat& >::type adjmat(adjmatSEXP);
-    rcpp_result_gen = Rcpp::wrap(count_triangle(adjmat));
-    return rcpp_result_gen;
-END_RCPP
-}
-// update_one_link
-arma::mat update_one_link(const arma::mat& adjmat, double& numOfEdges, double& numOfTriangles, int i, int j, int verbose);
-RcppExport SEXP _myergm_update_one_link(SEXP adjmatSEXP, SEXP numOfEdgesSEXP, SEXP numOfTrianglesSEXP, SEXP iSEXP, SEXP jSEXP, SEXP verboseSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::mat& >::type adjmat(adjmatSEXP);
-    Rcpp::traits::input_parameter< double& >::type numOfEdges(numOfEdgesSEXP);
-    Rcpp::traits::input_parameter< double& >::type numOfTriangles(numOfTrianglesSEXP);
-    Rcpp::traits::input_parameter< int >::type i(iSEXP);
-    Rcpp::traits::input_parameter< int >::type j(jSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type adjacency_matrix(adjacency_matrixSEXP);
+    Rcpp::traits::input_parameter< double >::type coefEdges(coefEdgesSEXP);
+    Rcpp::traits::input_parameter< double >::type coefTriangle(coefTriangleSEXP);
+    Rcpp::traits::input_parameter< int >::type MCMC_interval(MCMC_intervalSEXP);
+    Rcpp::traits::input_parameter< int >::type MCMC_samplesize(MCMC_samplesizeSEXP);
+    Rcpp::traits::input_parameter< int >::type MCMC_burnin(MCMC_burninSEXP);
+    Rcpp::traits::input_parameter< double >::type p_one_node_swap(p_one_node_swapSEXP);
+    Rcpp::traits::input_parameter< double >::type p_large_step(p_large_stepSEXP);
+    Rcpp::traits::input_parameter< double >::type p_invert(p_invertSEXP);
+    Rcpp::traits::input_parameter< double >::type lambda(lambdaSEXP);
     Rcpp::traits::input_parameter< int >::type verbose(verboseSEXP);
-    rcpp_result_gen = Rcpp::wrap(update_one_link(adjmat, numOfEdges, numOfTriangles, i, j, verbose));
-    return rcpp_result_gen;
-END_RCPP
-}
-// update_all_links_of_one_node
-arma::mat update_all_links_of_one_node(const arma::mat& adjmat, int i);
-RcppExport SEXP _myergm_update_all_links_of_one_node(SEXP adjmatSEXP, SEXP iSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::mat& >::type adjmat(adjmatSEXP);
-    Rcpp::traits::input_parameter< int >::type i(iSEXP);
-    rcpp_result_gen = Rcpp::wrap(update_all_links_of_one_node(adjmat, i));
+    rcpp_result_gen = Rcpp::wrap(run_network_sampler(adjacency_matrix, coefEdges, coefTriangle, MCMC_interval, MCMC_samplesize, MCMC_burnin, p_one_node_swap, p_large_step, p_invert, lambda, verbose));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -191,10 +162,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_myergm_count_edges", (DL_FUNC) &_myergm_count_edges, 1},
-    {"_myergm_count_triangle", (DL_FUNC) &_myergm_count_triangle, 1},
-    {"_myergm_update_one_link", (DL_FUNC) &_myergm_update_one_link, 6},
-    {"_myergm_update_all_links_of_one_node", (DL_FUNC) &_myergm_update_all_links_of_one_node, 2},
+    {"_myergm_run_network_sampler", (DL_FUNC) &_myergm_run_network_sampler, 11},
     {"_myergm_count_edges_cpp", (DL_FUNC) &_myergm_count_edges_cpp, 1},
     {"_myergm_count_triangle_cpp", (DL_FUNC) &_myergm_count_triangle_cpp, 1},
     {"_myergm_change_one_link", (DL_FUNC) &_myergm_change_one_link, 6},
