@@ -37,7 +37,6 @@ public:
   int verbose;
   // For internal use
   arma::mat netstats;
-  arma::mat adjmat_next;
   double numOfEdges;
   double numOfEdges_next;
   double numOfTriangles;
@@ -65,7 +64,6 @@ public:
     int log_verbose
   ){
     adjmat = adjacency_matrix;
-    adjmat_next = adjacency_matrix;
     coefEdges = coef_edges;
     coefTriangle = coef_triangle;
     MCMC_interval = mcmc_interval;
@@ -143,21 +141,16 @@ public:
     update_one_link();
   }
 
-  void update_adjmat_and_stats(arma::mat G, double edges, double triangle) {
-    adjmat_next = G;
+  void update_stats(double edges, double triangle) {
     numOfEdges_next = edges;
     numOfTriangles_next = triangle;
   }
 
   void update_one_link() {
-    arma::mat G = adjmat;
-    double edges = numOfEdges;
-    double triangle = numOfTriangles;
-
     // pick a random element
-    int i = unif_rand() * G.n_rows;
+    int i = unif_rand() * adjmat.n_rows;
     // pick a random element from what's left (there is one fewer to choose from)...
-    int j =  unif_rand() * (G.n_rows- 1);
+    int j =  unif_rand() * (adjmat.n_rows- 1);
     // ...and adjust second choice to take into account the first choice
     if (j >= i)
     {
@@ -165,64 +158,66 @@ public:
     }
 
     // Change the state of the selected dyad.
-    G(i, j) = 1 - G(i, j);
-    G(j, i) = 1 - G(j, i);
+    adjmat(i, j) = 1 - adjmat(i, j);
+    adjmat(j, i) = 1 - adjmat(j, i);
 
     // If added a link, add one to numOfEdges. Otherwise, subtract one.
-    edges += G(i, j) == 1 ? 1 : -1;
+    double edgediff = (adjmat(i, j) == 1) ? 1 : -1;
 
     // Count the number of triangles that appear/disappear by adding/removing the link.
-    arma::vec col_i = G.col(i);
-    arma::vec col_j = G.col(j);
-    double ij = dot(col_i, col_j);
-    triangle += G(i, j) == 1 ? ij : -ij;
+    double ij = dot(adjmat.col(i), adjmat.col(j));
+    double trianglediff = (adjmat(i, j) == 1) ? ij : -ij;
 
-    update_adjmat_and_stats(G, edges, triangle);
+    update_stats(numOfEdges + edgediff, numOfTriangles + trianglediff);
     run_proposal_step();
     if (accept_flag == 1) {
       accept_flag = 0;
-    };
+    } else {
+      adjmat(i, j) = 1 - adjmat(i, j);
+      adjmat(j, i) = 1 - adjmat(j, i);
+    }
   }
 
   void update_all_links_of_one_node() {
-    arma::mat G = adjmat;
-
     // pick a random element
-    int i = unif_rand() * G.n_rows;
+    int i = unif_rand() * adjmat.n_rows;
 
     // Change all links of one node
     arma::vec G_i = adjmat.col(i);
     G_i = 1 - G_i;
-    G.col(i) = G_i;
-    G.row(i) = G_i.t();
+    adjmat.col(i) = G_i;
+    adjmat.row(i) = G_i.t();
 
     // Set diagonal entries to be zero
-    G.diag().zeros();
+    adjmat.diag().zeros();
 
-    update_adjmat_and_stats(G, count_edges(G), count_triangle(G));
+    update_stats(count_edges(adjmat), count_triangle(adjmat));
     n_one_node_swap += 1;
 
     run_proposal_step();
     if (accept_flag == 1) {
       n_accepted_one_node_swap += 1;
       accept_flag = 0;
+    } else {
+      G_i = 1 - G_i;
+      adjmat.col(i) = G_i;
+      adjmat.row(i) = G_i.t();
+      adjmat.diag().zeros();
     };
   }
 
   void change_multiple_links() {
-    arma::mat G = adjmat;
-
     // Change [lambda * numOfNodes] links simultaneously.
-    int numOfChanges = lambda * G.n_rows;
+    int numOfChanges = lambda * adjmat.n_rows;
 
     // Select which link to swap.
     // This part could be written in a more elegant and efficient way.
     arma::mat Dyads = arma::zeros(numOfChanges, 2);
     for (int l = 0; l < numOfChanges; l++) {
       // pick a random element
-      int i = unif_rand() * G.n_rows;
+      int i = unif_rand() * adjmat.n_rows;
       // pick a random element from what's left (there is one fewer to choose from)...
-      int j =  unif_rand() * (G.n_rows- 1);
+      int j =  unif_rand() * (adjmat.n_rows- 1);
       // ...and adjust second choice to take into account the first choice
       if (j >= i)
       {
@@ -237,31 +232,41 @@ public:
     for (int l = 0; l < numOfChanges; l++) {
       int i = Dyads(l, 0);
       int j = Dyads(l, 1);
-      G(i, j) = 1 - G(i, j);
-      G(j, i) = 1 - G(j, i);
+      adjmat(i, j) = 1 - adjmat(i, j);
+      adjmat(j, i) = 1 - adjmat(j, i);
     }
-    update_adjmat_and_stats(G, count_edges(G), count_triangle(G));
+    update_stats(count_edges(adjmat), count_triangle(adjmat));
     n_large_step += 1;
 
     run_proposal_step();
     if (accept_flag == 1) {
       n_accepted_large_step += 1;
       accept_flag = 0;
+    } else {
+      for (int l = 0; l < numOfChanges; l++) {
+        int i = Dyads(l, 0);
+        int j = Dyads(l, 1);
+        adjmat(i, j) = 1 - adjmat(i, j);
+        adjmat(j, i) = 1 - adjmat(j, i);
+      }
     };
   }
 
   void invert_adjacency_matrix() {
     // Invert the adjacency matrix and set the diagonals to be zero
-    arma::mat G = 1 - adjmat;
-    G.diag().zeros();
-    update_adjmat_and_stats(G, count_edges(G), count_triangle(G));
+    adjmat = 1 - adjmat;
+    adjmat.diag().zeros();
+    update_stats(count_edges(adjmat), count_triangle(adjmat));
     n_invert += 1;
 
     run_proposal_step();
     if (accept_flag == 1) {
       n_accepted_invert += 1;
       accept_flag = 0;
-    };
+    } else {
+      adjmat = 1 - adjmat;
+      adjmat.diag().zeros();
+    }
   }
 
   void run_proposal_step() {
@@ -279,7 +284,6 @@ public:
       }
       accept_flag = 1;
       n_accepted += 1;
-      adjmat = adjmat_next;
       numOfEdges = numOfEdges_next;
       numOfTriangles = numOfTriangles_next;
     } else {

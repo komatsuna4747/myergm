@@ -10,9 +10,9 @@ arma::mat run_network_sampler(
     int MCMC_interval = 1024,
     int MCMC_samplesize = 1024,
     int MCMC_burnin = 1024 * 16,
-    double p_one_node_swap = 0.01,
-    double p_large_step = 0.01,
-    double p_invert = 0.01,
+    double p_one_node_swap = 0.001,
+    double p_large_step = 0.001,
+    double p_invert = 0.001,
     double lambda = 0.5,
     int verbose = 0
 ){
