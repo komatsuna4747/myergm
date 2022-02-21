@@ -7,8 +7,8 @@
 using namespace Rcpp;
 
 // run_network_sampler
-arma::mat run_network_sampler(const arma::mat& adjacency_matrix, double coefEdges, double coefTriangle, int MCMC_interval, int MCMC_samplesize, int MCMC_burnin, double p_one_node_swap, double p_large_step, double p_invert, double lambda, int verbose);
-RcppExport SEXP _myergm_run_network_sampler(SEXP adjacency_matrixSEXP, SEXP coefEdgesSEXP, SEXP coefTriangleSEXP, SEXP MCMC_intervalSEXP, SEXP MCMC_samplesizeSEXP, SEXP MCMC_burninSEXP, SEXP p_one_node_swapSEXP, SEXP p_large_stepSEXP, SEXP p_invertSEXP, SEXP lambdaSEXP, SEXP verboseSEXP) {
+arma::mat run_network_sampler(const arma::mat& adjacency_matrix, double coefEdges, double coefTriangle, int MCMC_interval, int MCMC_samplesize, int MCMC_burnin, double p_one_node_swap, double p_large_step, double p_invert, double lambda, std::string level);
+RcppExport SEXP _myergm_run_network_sampler(SEXP adjacency_matrixSEXP, SEXP coefEdgesSEXP, SEXP coefTriangleSEXP, SEXP MCMC_intervalSEXP, SEXP MCMC_samplesizeSEXP, SEXP MCMC_burninSEXP, SEXP p_one_node_swapSEXP, SEXP p_large_stepSEXP, SEXP p_invertSEXP, SEXP lambdaSEXP, SEXP levelSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -22,8 +22,29 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type p_large_step(p_large_stepSEXP);
     Rcpp::traits::input_parameter< double >::type p_invert(p_invertSEXP);
     Rcpp::traits::input_parameter< double >::type lambda(lambdaSEXP);
-    Rcpp::traits::input_parameter< int >::type verbose(verboseSEXP);
-    rcpp_result_gen = Rcpp::wrap(run_network_sampler(adjacency_matrix, coefEdges, coefTriangle, MCMC_interval, MCMC_samplesize, MCMC_burnin, p_one_node_swap, p_large_step, p_invert, lambda, verbose));
+    Rcpp::traits::input_parameter< std::string >::type level(levelSEXP);
+    rcpp_result_gen = Rcpp::wrap(run_network_sampler(adjacency_matrix, coefEdges, coefTriangle, MCMC_interval, MCMC_samplesize, MCMC_burnin, p_one_node_swap, p_large_step, p_invert, lambda, level));
+    return rcpp_result_gen;
+END_RCPP
+}
+// simulate_network
+Rcpp::List simulate_network(const arma::mat& adjacency_matrix, double coefEdges, double coefTriangle, int MCMC_interval, int MCMC_samplesize, int MCMC_burnin, double p_one_node_swap, double p_large_step, double p_invert, double lambda, std::string level);
+RcppExport SEXP _myergm_simulate_network(SEXP adjacency_matrixSEXP, SEXP coefEdgesSEXP, SEXP coefTriangleSEXP, SEXP MCMC_intervalSEXP, SEXP MCMC_samplesizeSEXP, SEXP MCMC_burninSEXP, SEXP p_one_node_swapSEXP, SEXP p_large_stepSEXP, SEXP p_invertSEXP, SEXP lambdaSEXP, SEXP levelSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type adjacency_matrix(adjacency_matrixSEXP);
+    Rcpp::traits::input_parameter< double >::type coefEdges(coefEdgesSEXP);
+    Rcpp::traits::input_parameter< double >::type coefTriangle(coefTriangleSEXP);
+    Rcpp::traits::input_parameter< int >::type MCMC_interval(MCMC_intervalSEXP);
+    Rcpp::traits::input_parameter< int >::type MCMC_samplesize(MCMC_samplesizeSEXP);
+    Rcpp::traits::input_parameter< int >::type MCMC_burnin(MCMC_burninSEXP);
+    Rcpp::traits::input_parameter< double >::type p_one_node_swap(p_one_node_swapSEXP);
+    Rcpp::traits::input_parameter< double >::type p_large_step(p_large_stepSEXP);
+    Rcpp::traits::input_parameter< double >::type p_invert(p_invertSEXP);
+    Rcpp::traits::input_parameter< double >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< std::string >::type level(levelSEXP);
+    rcpp_result_gen = Rcpp::wrap(simulate_network(adjacency_matrix, coefEdges, coefTriangle, MCMC_interval, MCMC_samplesize, MCMC_burnin, p_one_node_swap, p_large_step, p_invert, lambda, level));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -163,6 +184,7 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_myergm_run_network_sampler", (DL_FUNC) &_myergm_run_network_sampler, 11},
+    {"_myergm_simulate_network", (DL_FUNC) &_myergm_simulate_network, 11},
     {"_myergm_count_edges_cpp", (DL_FUNC) &_myergm_count_edges_cpp, 1},
     {"_myergm_count_triangle_cpp", (DL_FUNC) &_myergm_count_triangle_cpp, 1},
     {"_myergm_change_one_link", (DL_FUNC) &_myergm_change_one_link, 6},

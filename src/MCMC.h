@@ -1,5 +1,6 @@
 #ifndef __MCMC__
 #define __MCMC__
+#include <RcppSpdlog>
 
 double count_edges(const arma::mat& adjmat) {
   double edges = accu(adjmat);
@@ -8,17 +9,23 @@ double count_edges(const arma::mat& adjmat) {
 
 
 double count_triangle(const arma::mat& adjmat) {
-  double triangle = 0;
-  int numOfNodes = adjmat.n_rows;
-  for (int i = 0; i < numOfNodes-2; i++) {
-    for (int j = i+1; j < numOfNodes-1; j++) {
-      for (int k = j+1; k < numOfNodes; k++) {
-        triangle += adjmat(i, j) * adjmat(j, k) * adjmat(k, i);
-      }
-    }
-  }
-  return triangle;
+  arma::colvec colsum = arma::sum(adjmat, 1);
+  return dot(colsum, colsum - 1) / 2;
 }
+
+
+//double count_triangle(const arma::mat& adjmat) {
+//  double triangle = 0;
+//  int numOfNodes = adjmat.n_rows;
+//  for (int i = 0; i < numOfNodes-2; i++) {
+//    for (int j = i+1; j < numOfNodes-1; j++) {
+//      for (int k = j+1; k < numOfNodes; k++) {
+//        triangle += adjmat(i, j) * adjmat(j, k) * adjmat(k, i);
+//      }
+//    }
+//  }
+//  return triangle;
+//}
 
 
 class NetworkSampler
@@ -34,7 +41,6 @@ public:
   double p_large_step;
   double p_invert;
   double lambda;
-  int verbose;
   // For internal use
   arma::mat netstats;
   double numOfEdges;
@@ -60,8 +66,7 @@ public:
     double prob_one_node_swap,
     double prob_large_step,
     double prob_invert,
-    double lambda_for_large_step,
-    int log_verbose
+    double lambda_for_large_step
   ){
     adjmat = adjacency_matrix;
     coefEdges = coef_edges;
@@ -73,7 +78,6 @@ public:
     p_large_step = prob_large_step;
     p_invert = prob_invert;
     lambda = lambda_for_large_step;
-    verbose = log_verbose;
     numOfEdges = count_edges(adjmat);
     numOfTriangles = count_triangle(adjmat);
     netstats = arma::zeros(MCMC_samplesize, 2);
@@ -94,31 +98,38 @@ public:
       }
 
       // Check the current state if necessary
-      if (verbose >= 5) {
-        Rcpp::Rcout << "edges:" << numOfEdges << ", triangle:" << numOfTriangles << "\n";
-      }
+      spdlog::trace("edges: {0}, triangle: {1}", numOfEdges, numOfTriangles);
     }
-
-    if (verbose >= 1) {
-      display_acceptance_rate(total_iter);
-    }
+    display_acceptance_rate(total_iter);
   }
 
   void display_acceptance_rate(double total_iter) {
     double acceptance_rate = (n_accepted / total_iter) * 100;
-    Rcpp::Rcout << "Acceptance rate: " << n_accepted << "/" << total_iter << " = " << acceptance_rate << " %." << "\n";
+    spdlog::debug(
+      "Acceptance rate: {0} / {1} = {2} %.",
+      n_accepted, total_iter, acceptance_rate
+    );
     // Check large steps
     if (n_one_node_swap >= 1) {
       double one_node_swap_rate = (n_accepted_one_node_swap / n_one_node_swap) * 100;
-      Rcpp::Rcout << "Swapping all links of one node: " << n_accepted_one_node_swap << "/" << n_one_node_swap << " = " << one_node_swap_rate << " %." << "\n";
+      spdlog::debug(
+        "Swapping all links of one node: {0} / {1} = {2} %.",
+        n_accepted_one_node_swap, n_one_node_swap, one_node_swap_rate
+      );
     }
     if (n_large_step >= 1) {
       double large_step_rate = (n_accepted_large_step / n_large_step) * 100;
-      Rcpp::Rcout << "Swapping multiple links in one step: " << n_accepted_large_step << "/" << n_large_step << " = " << large_step_rate << " %." << "\n";
+      spdlog::debug(
+        "Swapping multiple links in one step: {0} / {1} = {2} %.",
+        n_accepted_large_step, n_large_step, large_step_rate
+      );
     }
     if (n_invert >= 1) {
       double invert_rate = (n_accepted_invert / n_invert) * 100;
-      Rcpp::Rcout << "Inverting the adjacency matrix: " << n_accepted_invert << "/" << n_invert << " = " << invert_rate << " %." << "\n";
+      spdlog::debug(
+        "Inverting the adjacency matrix: {0} / {1} = {2} %.",
+        n_accepted_invert, n_invert, invert_rate
+      );
     }
   }
 
@@ -168,7 +179,8 @@ public:
     double ij = dot(adjmat.col(i), adjmat.col(j));
     double trianglediff = (adjmat(i, j) == 1) ? ij : -ij;
 
-    update_stats(numOfEdges + edgediff, numOfTriangles + trianglediff);
+    //update_stats(numOfEdges + edgediff, numOfTriangles + trianglediff);
+    update_stats(numOfEdges + edgediff, count_triangle(adjmat));
     run_proposal_step();
     if (accept_flag == 1) {
       accept_flag = 0;
@@ -279,17 +291,13 @@ public:
 
     // Accept or reject?
     if (logratio >= 0.0 || log(unif_rand()) < logratio) {
-      if (verbose >= 5) {
-        Rcpp::Rcout << "Accepted." << "\n";
-      }
+      spdlog::trace("Accepted.");
       accept_flag = 1;
       n_accepted += 1;
       numOfEdges = numOfEdges_next;
       numOfTriangles = numOfTriangles_next;
     } else {
-      if (verbose >= 5) {
-        Rcpp::Rcout << "Rejected." << "\n";
-      }
+      spdlog::trace("Rejected.");
     }
   }
 };

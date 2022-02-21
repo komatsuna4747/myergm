@@ -131,3 +131,8 @@ myergm_MCMLE <- function(model,
   rownames(theta) <- c("edges", "triangle")
   return(theta)
 }
+
+
+check_logger <- function(level = "info") {
+  exampleRsink(level)
+}
