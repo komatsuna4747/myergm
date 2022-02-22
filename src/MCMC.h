@@ -91,7 +91,7 @@ public:
       run_update_stat();
 
       // Store the stats
-      if (i >= MCMC_burnin && (i - MCMC_burnin) % MCMC_interval == 0) {
+      if (i >= MCMC_burnin - 1 && (i - MCMC_burnin + 1) % MCMC_interval == 0) {
         int index = (i - MCMC_burnin) / MCMC_interval;
         netstats(index, 0) = numOfEdges;
         netstats(index, 1) = numOfTriangles;
