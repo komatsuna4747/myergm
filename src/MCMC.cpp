@@ -8,6 +8,7 @@
 arma::mat run_network_sampler(
     const arma::mat& adjacency_matrix,
     double coefEdges,
+    double coefTwostars,
     double coefTriangle,
     int MCMC_interval = 1024,
     int MCMC_samplesize = 1024,
@@ -33,6 +34,7 @@ arma::mat run_network_sampler(
   NetworkSampler network_sampler(
       adjmat,
       coefEdges,
+      coefTwostars,
       coefTriangle,
       MCMC_interval,
       MCMC_samplesize,
@@ -57,6 +59,7 @@ arma::mat run_network_sampler(
 Rcpp::List simulate_network(
     const arma::mat& adjacency_matrix,
     double coefEdges,
+    double coefTwostars,
     double coefTriangle,
     int MCMC_interval = 1024,
     int MCMC_samplesize = 1024,
@@ -82,6 +85,7 @@ Rcpp::List simulate_network(
   NetworkSampler network_sampler(
       adjmat,
       coefEdges,
+      coefTwostars,
       coefTriangle,
       MCMC_interval,
       MCMC_samplesize,

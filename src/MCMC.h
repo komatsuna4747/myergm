@@ -8,24 +8,24 @@ double count_edges(const arma::mat& adjmat) {
 }
 
 
-double count_triangle(const arma::mat& adjmat) {
+double count_twostar(const arma::mat& adjmat) {
   arma::colvec colsum = arma::sum(adjmat, 1);
   return dot(colsum, colsum - 1) / 2;
 }
 
 
-//double count_triangle(const arma::mat& adjmat) {
-//  double triangle = 0;
-//  int numOfNodes = adjmat.n_rows;
-//  for (int i = 0; i < numOfNodes-2; i++) {
-//    for (int j = i+1; j < numOfNodes-1; j++) {
-//      for (int k = j+1; k < numOfNodes; k++) {
-//        triangle += adjmat(i, j) * adjmat(j, k) * adjmat(k, i);
-//      }
-//    }
-//  }
-//  return triangle;
-//}
+double count_triangle(const arma::mat& adjmat) {
+  double triangle = 0;
+  int numOfNodes = adjmat.n_rows;
+  for (int i = 0; i < numOfNodes-2; i++) {
+    for (int j = i+1; j < numOfNodes-1; j++) {
+      for (int k = j+1; k < numOfNodes; k++) {
+        triangle += adjmat(i, j) * adjmat(j, k) * adjmat(k, i);
+      }
+    }
+  }
+  return triangle;
+}
 
 
 class NetworkSampler
@@ -33,6 +33,7 @@ class NetworkSampler
 public:
   arma::mat adjmat;
   double coefEdges;
+  double coefTwostars;
   double coefTriangle;
   int MCMC_interval;
   int MCMC_samplesize;
@@ -45,6 +46,8 @@ public:
   arma::mat netstats;
   double numOfEdges;
   double numOfEdges_next;
+  double numOfTwostars;
+  double numOfTwostars_next;
   double numOfTriangles;
   double numOfTriangles_next;
   double n_accepted = 0;
@@ -59,6 +62,7 @@ public:
   NetworkSampler(
     arma::mat adjacency_matrix,
     double coef_edges,
+    double coef_twostars,
     double coef_triangle,
     int mcmc_interval,
     int mcmc_samplesize,
@@ -70,6 +74,7 @@ public:
   ){
     adjmat = adjacency_matrix;
     coefEdges = coef_edges;
+    coefTwostars = coef_twostars;
     coefTriangle = coef_triangle;
     MCMC_interval = mcmc_interval;
     MCMC_samplesize = mcmc_samplesize;
@@ -80,7 +85,7 @@ public:
     lambda = lambda_for_large_step;
     numOfEdges = count_edges(adjmat);
     numOfTriangles = count_triangle(adjmat);
-    netstats = arma::zeros(MCMC_samplesize, 2);
+    netstats = arma::zeros(MCMC_samplesize, 3);
   }
 
   void run_simulation() {
@@ -94,11 +99,12 @@ public:
       if (i >= MCMC_burnin - 1 && (i - MCMC_burnin + 1) % MCMC_interval == 0) {
         int index = (i - MCMC_burnin) / MCMC_interval;
         netstats(index, 0) = numOfEdges;
-        netstats(index, 1) = numOfTriangles;
+        netstats(index, 1) = numOfTwostars;
+        netstats(index, 2) = numOfTriangles;
       }
 
       // Check the current state if necessary
-      spdlog::trace("edges: {0}, triangle: {1}", numOfEdges, numOfTriangles);
+      spdlog::trace("edges: {0}, twostars{1}, triangle: {2}", numOfEdges, numOfTwostars, numOfTriangles);
     }
     display_acceptance_rate(total_iter);
   }
@@ -152,8 +158,9 @@ public:
     update_one_link();
   }
 
-  void update_stats(double edges, double triangle) {
+  void update_stats(double edges, double twostars, double triangle) {
     numOfEdges_next = edges;
+    numOfTwostars = twostars;
     numOfTriangles_next = triangle;
   }
 
@@ -175,12 +182,17 @@ public:
     // If added a link, add one to numOfEdges. Otherwise, subtract one.
     double edgediff = (adjmat(i, j) == 1) ? 1 : -1;
 
+    double edges_i = sum(adjmat.col(i));
+    double edges_j = sum(adjmat.col(j));
+    double star = edges_i * (edges_i - 1) / 2 + edges_j * (edges_j - 1) / 2;
+    double twostardiff = (adjmat(i, j) == 1) ? star : -star;
+
     // Count the number of triangles that appear/disappear by adding/removing the link.
     double ij = dot(adjmat.col(i), adjmat.col(j));
     double trianglediff = (adjmat(i, j) == 1) ? ij : -ij;
 
     //update_stats(numOfEdges + edgediff, numOfTriangles + trianglediff);
-    update_stats(numOfEdges + edgediff, count_triangle(adjmat));
+    update_stats(numOfEdges + edgediff,  count_twostar(adjmat), numOfTriangles + trianglediff);
     run_proposal_step();
     if (accept_flag == 1) {
       accept_flag = 0;
@@ -203,7 +215,7 @@ public:
     // Set diagonal entries to be zero
     adjmat.diag().zeros();
 
-    update_stats(count_edges(adjmat), count_triangle(adjmat));
+    update_stats(count_edges(adjmat), count_twostar(adjmat), count_triangle(adjmat));
     n_one_node_swap += 1;
 
     run_proposal_step();
@@ -247,7 +259,7 @@ public:
       adjmat(i, j) = 1 - adjmat(i, j);
       adjmat(j, i) = 1 - adjmat(j, i);
     }
-    update_stats(count_edges(adjmat), count_triangle(adjmat));
+    update_stats(count_edges(adjmat), count_twostar(adjmat), count_triangle(adjmat));
     n_large_step += 1;
 
     run_proposal_step();
@@ -268,7 +280,7 @@ public:
     // Invert the adjacency matrix and set the diagonals to be zero
     adjmat = 1 - adjmat;
     adjmat.diag().zeros();
-    update_stats(count_edges(adjmat), count_triangle(adjmat));
+    update_stats(count_edges(adjmat), count_twostar(adjmat), count_triangle(adjmat));
     n_invert += 1;
 
     run_proposal_step();
@@ -284,10 +296,11 @@ public:
   void run_proposal_step() {
     // Store the results.
     double changestat_edges = numOfEdges_next - numOfEdges;
+    double changestat_twostars = numOfTwostars_next - numOfTwostars;
     double changestat_triangle = numOfTriangles_next - numOfTriangles;
 
     // Compute the logratio
-    double logratio = changestat_edges * coefEdges + changestat_triangle * coefTriangle;
+    double logratio = changestat_edges * coefEdges + changestat_twostars * coefTwostars +changestat_triangle * coefTriangle;
 
     // Accept or reject?
     if (logratio >= 0.0 || log(unif_rand()) < logratio) {
@@ -295,6 +308,7 @@ public:
       accept_flag = 1;
       n_accepted += 1;
       numOfEdges = numOfEdges_next;
+      numOfTwostars = numOfTwostars_next;
       numOfTriangles = numOfTriangles_next;
     } else {
       spdlog::trace("Rejected.");
