@@ -84,6 +84,7 @@ public:
     p_invert = prob_invert;
     lambda = lambda_for_large_step;
     numOfEdges = count_edges(adjmat);
+    numOfTwostars = count_twostar(adjmat);
     numOfTriangles = count_triangle(adjmat);
     netstats = arma::zeros(MCMC_samplesize, 3);
   }
@@ -104,7 +105,7 @@ public:
       }
 
       // Check the current state if necessary
-      spdlog::trace("edges: {0}, twostars{1}, triangle: {2}", numOfEdges, numOfTwostars, numOfTriangles);
+      spdlog::trace("edges: {0}, twostars: {1}, triangle: {2}", numOfEdges, numOfTwostars, numOfTriangles);
     }
     display_acceptance_rate(total_iter);
   }
@@ -160,7 +161,7 @@ public:
 
   void update_stats(double edges, double twostars, double triangle) {
     numOfEdges_next = edges;
-    numOfTwostars = twostars;
+    numOfTwostars_next = twostars;
     numOfTriangles_next = triangle;
   }
 
@@ -175,6 +176,9 @@ public:
       ++j;
     }
 
+    double edges_i_before = sum(adjmat.col(i));
+    double edges_j_before = sum(adjmat.col(j));
+
     // Change the state of the selected dyad.
     adjmat(i, j) = 1 - adjmat(i, j);
     adjmat(j, i) = 1 - adjmat(j, i);
@@ -182,17 +186,18 @@ public:
     // If added a link, add one to numOfEdges. Otherwise, subtract one.
     double edgediff = (adjmat(i, j) == 1) ? 1 : -1;
 
+    // Changes in twostars
     double edges_i = sum(adjmat.col(i));
     double edges_j = sum(adjmat.col(j));
-    double star = edges_i * (edges_i - 1) / 2 + edges_j * (edges_j - 1) / 2;
-    double twostardiff = (adjmat(i, j) == 1) ? star : -star;
+    double stardiff = edges_i * (edges_i - 1) / 2 - edges_i_before * (edges_i_before - 1) / 2 + edges_j * (edges_j - 1) / 2 - edges_j_before * (edges_j_before - 1) / 2;
 
     // Count the number of triangles that appear/disappear by adding/removing the link.
     double ij = dot(adjmat.col(i), adjmat.col(j));
     double trianglediff = (adjmat(i, j) == 1) ? ij : -ij;
 
-    //update_stats(numOfEdges + edgediff, numOfTriangles + trianglediff);
-    update_stats(numOfEdges + edgediff,  count_twostar(adjmat), numOfTriangles + trianglediff);
+    update_stats(numOfEdges + edgediff, numOfTwostars + stardiff, numOfTriangles + trianglediff);
+    //update_stats(numOfEdges + edgediff, numOfTwostars + twostardiff, numOfTriangles + trianglediff);
+    //update_stats(numOfEdges + edgediff, count_twostar(adjmat), count_triangle(adjmat));
     run_proposal_step();
     if (accept_flag == 1) {
       accept_flag = 0;
@@ -313,6 +318,21 @@ public:
     } else {
       spdlog::trace("Rejected.");
     }
+  }
+
+  void reset_parameters(arma::mat adjmat_original) {
+    n_accepted = 0;
+    n_accepted_invert = 0;
+    n_accepted_large_step = 0;
+    n_accepted_one_node_swap = 0;
+    n_invert = 0;
+    n_large_step = 0;
+    n_one_node_swap = 0;
+    adjmat = adjmat_original;
+    numOfEdges = count_edges(adjmat_original);
+    numOfTwostars = count_twostar(adjmat_original);
+    numOfTriangles = count_triangle(adjmat_original);
+    accept_flag = 0;
   }
 };
 
