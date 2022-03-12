@@ -9,6 +9,14 @@ simulate_network <- function(adjacency_matrix, coefEdges, coefTwostars, coefTria
     .Call(`_myergm_simulate_network`, adjacency_matrix, coefEdges, coefTwostars, coefTriangle, MCMC_interval, MCMC_samplesize, MCMC_burnin, p_one_node_swap, p_large_step, p_invert, lambda, level)
 }
 
+proposal_mvrnorm <- function(mu, sigma) {
+    .Call(`_myergm_proposal_mvrnorm`, mu, sigma)
+}
+
+run_DMH <- function(adjacency_matrix, sigma_proposal, theta_init, sigma_prior, terms_included, param_sample = 10000L, MCMC_network_interval = 100000L, p_one_node_swap = 0.001, p_large_step = 0.001, p_invert = 0.001, lambda = 0.5, level = "info") {
+    .Call(`_myergm_run_DMH`, adjacency_matrix, sigma_proposal, theta_init, sigma_prior, terms_included, param_sample, MCMC_network_interval, p_one_node_swap, p_large_step, p_invert, lambda, level)
+}
+
 count_edges_cpp <- function(adjmat) {
     .Call(`_myergm_count_edges_cpp`, adjmat)
 }

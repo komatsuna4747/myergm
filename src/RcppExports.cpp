@@ -50,6 +50,40 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// proposal_mvrnorm
+arma::vec proposal_mvrnorm(arma::vec mu, arma::mat sigma);
+RcppExport SEXP _myergm_proposal_mvrnorm(SEXP muSEXP, SEXP sigmaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::vec >::type mu(muSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type sigma(sigmaSEXP);
+    rcpp_result_gen = Rcpp::wrap(proposal_mvrnorm(mu, sigma));
+    return rcpp_result_gen;
+END_RCPP
+}
+// run_DMH
+arma::mat run_DMH(const arma::mat& adjacency_matrix, arma::mat sigma_proposal, arma::vec theta_init, arma::mat sigma_prior, arma::vec terms_included, int param_sample, int MCMC_network_interval, double p_one_node_swap, double p_large_step, double p_invert, double lambda, std::string level);
+RcppExport SEXP _myergm_run_DMH(SEXP adjacency_matrixSEXP, SEXP sigma_proposalSEXP, SEXP theta_initSEXP, SEXP sigma_priorSEXP, SEXP terms_includedSEXP, SEXP param_sampleSEXP, SEXP MCMC_network_intervalSEXP, SEXP p_one_node_swapSEXP, SEXP p_large_stepSEXP, SEXP p_invertSEXP, SEXP lambdaSEXP, SEXP levelSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type adjacency_matrix(adjacency_matrixSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type sigma_proposal(sigma_proposalSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type theta_init(theta_initSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type sigma_prior(sigma_priorSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type terms_included(terms_includedSEXP);
+    Rcpp::traits::input_parameter< int >::type param_sample(param_sampleSEXP);
+    Rcpp::traits::input_parameter< int >::type MCMC_network_interval(MCMC_network_intervalSEXP);
+    Rcpp::traits::input_parameter< double >::type p_one_node_swap(p_one_node_swapSEXP);
+    Rcpp::traits::input_parameter< double >::type p_large_step(p_large_stepSEXP);
+    Rcpp::traits::input_parameter< double >::type p_invert(p_invertSEXP);
+    Rcpp::traits::input_parameter< double >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< std::string >::type level(levelSEXP);
+    rcpp_result_gen = Rcpp::wrap(run_DMH(adjacency_matrix, sigma_proposal, theta_init, sigma_prior, terms_included, param_sample, MCMC_network_interval, p_one_node_swap, p_large_step, p_invert, lambda, level));
+    return rcpp_result_gen;
+END_RCPP
+}
 // count_edges_cpp
 double count_edges_cpp(const arma::sp_mat& adjmat);
 RcppExport SEXP _myergm_count_edges_cpp(SEXP adjmatSEXP) {
@@ -187,6 +221,8 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_myergm_run_network_sampler", (DL_FUNC) &_myergm_run_network_sampler, 12},
     {"_myergm_simulate_network", (DL_FUNC) &_myergm_simulate_network, 12},
+    {"_myergm_proposal_mvrnorm", (DL_FUNC) &_myergm_proposal_mvrnorm, 2},
+    {"_myergm_run_DMH", (DL_FUNC) &_myergm_run_DMH, 12},
     {"_myergm_count_edges_cpp", (DL_FUNC) &_myergm_count_edges_cpp, 1},
     {"_myergm_count_triangle_cpp", (DL_FUNC) &_myergm_count_triangle_cpp, 1},
     {"_myergm_change_one_link", (DL_FUNC) &_myergm_change_one_link, 6},
