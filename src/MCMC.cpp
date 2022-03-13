@@ -54,7 +54,8 @@ arma::mat run_network_sampler(
   return network_sampler.netstats;
 }
 
-
+//' Simulate networks
+//' @export
 // [[Rcpp::export]]
 Rcpp::List simulate_network(
     const arma::mat& adjacency_matrix,
@@ -120,9 +121,10 @@ arma::vec proposal_mvrnorm(arma::vec mu, arma::mat sigma) {
   return output.col(0);
 }
 
-
+//' Run a Double Metropolis-Hastings sampler
+//' @export
 // [[Rcpp::export]]
-arma::mat run_DMH(
+arma::mat run_DMH_cpp(
     const arma::mat& adjacency_matrix,
     arma::mat sigma_proposal,
     arma::vec theta_init,
